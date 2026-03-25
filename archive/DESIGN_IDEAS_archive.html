@@ -1,0 +1,1897 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bullet Heaven — Design Document</title>
+  <style>
+    :root {
+      --bg: #0d0d12;
+      --bg2: #16161f;
+      --bg3: #1e1e2a;
+      --border: #2a2a3d;
+      --text: #dddde6;
+      --text-muted: #8888a0;
+      --accent: #7c6ff7;
+      --accent-dim: #5a4fd4;
+      --green: #4caf50;
+      --green-dim: #2e7d32;
+      --yellow: #ffc107;
+      --yellow-dim: #f9a825;
+      --red: #ef5350;
+      --orange: #ff9800;
+      --cyan: #26c6da;
+      --purple: #ab47bc;
+      --pink: #ec407a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    /* ── Header ── */
+    header {
+      position: relative;
+      padding: 70px 40px 60px;
+      text-align: center;
+      overflow: hidden;
+      background: linear-gradient(160deg, #1a1035 0%, #0d0d12 40%, #0d1520 100%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 600px 200px at 30% 80%, rgba(124, 111, 247, 0.08), transparent),
+        radial-gradient(ellipse 400px 300px at 70% 20%, rgba(171, 71, 188, 0.06), transparent);
+    }
+
+    h1 {
+      font-size: 3.2em;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      position: relative;
+      background: linear-gradient(135deg, #c4b5fd, #7c6ff7, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .tagline {
+      font-size: 1em;
+      color: var(--text-muted);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-top: 10px;
+      position: relative;
+    }
+
+    .version-badge {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 4px 14px;
+      border: 1px solid var(--accent-dim);
+      border-radius: 20px;
+      font-size: 0.8em;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      position: relative;
+    }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    section {
+      margin-bottom: 48px;
+      padding: 32px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+
+    .section-title {
+      font-size: 1.5em;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-tag {
+      font-size: 0.5em;
+      font-weight: 600;
+      color: var(--accent);
+      background: rgba(124, 111, 247, 0.12);
+      padding: 3px 10px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      vertical-align: middle;
+    }
+
+    .subsection {
+      margin-bottom: 28px;
+    }
+
+    .subsection:last-child {
+      margin-bottom: 0;
+    }
+
+    .sub-title {
+      font-size: 1.05em;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    /* ── Grid ── */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .grid-auto {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+    }
+
+    @media (max-width: 800px) {
+
+      .grid-2,
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 2.2em;
+      }
+
+      section {
+        padding: 20px;
+      }
+    }
+
+    /* ── Stats ── */
+    .stat-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .stat-label {
+      font-size: 0.78em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 1.5em;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .stat-note {
+      font-size: 0.8em;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ── Tables ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92em;
+      margin: 12px 0;
+    }
+
+    th,
+    td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.85em;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: rgba(124, 111, 247, 0.06);
+    }
+
+    tr:hover {
+      background: rgba(124, 111, 247, 0.03);
+    }
+
+    /* ── Weapon Cards ── */
+    .weapon-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      transition: border-color 0.2s;
+    }
+
+    .weapon-card:hover {
+      border-color: var(--accent-dim);
+    }
+
+    .weapon-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .weapon-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .weapon-name {
+      font-weight: 700;
+      font-size: 1.02em;
+    }
+
+    .weapon-type-tag {
+      font-size: 0.7em;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-left: auto;
+      background: rgba(124, 111, 247, 0.12);
+      color: var(--accent);
+    }
+
+    .weapon-desc {
+      font-size: 0.88em;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .weapon-stats {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 0.8em;
+    }
+
+    .weapon-stat {
+      background: var(--bg2);
+      padding: 3px 8px;
+      border-radius: 4px;
+      color: var(--text-muted);
+    }
+
+    .weapon-stat strong {
+      color: var(--text);
+    }
+
+    /* ── Evolution Flow ── */
+    .evo-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .evo-part {
+      text-align: center;
+    }
+
+    .evo-name {
+      font-weight: 600;
+      font-size: 0.92em;
+    }
+
+    .evo-label {
+      font-size: 0.72em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .evo-arrow {
+      color: var(--accent);
+      font-size: 1.3em;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .evo-result .evo-name {
+      color: var(--accent);
+    }
+
+    @media (max-width: 600px) {
+      .evo-card {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .evo-arrow {
+        transform: rotate(90deg);
+      }
+    }
+
+    /* ── Roadmap ── */
+    .roadmap-track {
+      display: flex;
+      gap: 0;
+      margin: 20px 0 30px;
+      position: relative;
+      overflow-x: auto;
+    }
+
+    .roadmap-node {
+      flex: 1;
+      min-width: 120px;
+      text-align: center;
+      position: relative;
+      padding-top: 40px;
+    }
+
+    .roadmap-node::before {
+      content: '';
+      position: absolute;
+      top: 14px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--border);
+    }
+
+    .roadmap-node:first-child::before {
+      left: 50%;
+    }
+
+    .roadmap-node:last-child::before {
+      right: 50%;
+    }
+
+    .roadmap-dot {
+      position: absolute;
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 3px solid var(--bg2);
+      z-index: 1;
+    }
+
+    .roadmap-phase {
+      font-size: 0.7em;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .roadmap-label {
+      font-size: 0.82em;
+      font-weight: 600;
+    }
+
+    .roadmap-pct {
+      font-size: 0.7em;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .phase-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .phase-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .phase-tag {
+      font-size: 0.72em;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .phase-bar-track {
+      height: 6px;
+      background: var(--bg2);
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+
+    .phase-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 1s ease;
+    }
+
+    .phase-detail {
+      font-size: 0.85em;
+      color: var(--text-muted);
+    }
+
+    .phase-detail li {
+      margin-bottom: 4px;
+    }
+
+    /* ── Key feature boxes ── */
+    .kf-box {
+      background: var(--bg);
+      border-left: 3px solid var(--accent);
+      padding: 12px 16px;
+      border-radius: 0 6px 6px 0;
+      margin: 8px 0;
+    }
+
+    .kf-title {
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .kf-text {
+      font-size: 0.9em;
+      color: var(--text-muted);
+    }
+
+    /* ── Architecture diagram ── */
+    .arch-node {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .arch-title {
+      font-weight: 600;
+      font-size: 0.9em;
+      margin-bottom: 4px;
+    }
+
+    .arch-desc {
+      font-size: 0.78em;
+      color: var(--text-muted);
+    }
+
+    /* ── Passive pills ── */
+    .passive-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(42, 42, 61, 0.5);
+    }
+
+    .passive-row:last-child {
+      border-bottom: none;
+    }
+
+    .passive-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .passive-name {
+      font-weight: 600;
+      font-size: 0.92em;
+      min-width: 100px;
+    }
+
+    .passive-effect {
+      font-size: 0.85em;
+      color: var(--text-muted);
+    }
+
+    .passive-max {
+      font-size: 0.8em;
+      color: var(--accent);
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    /* ── Visual status indicators ── */
+    .status-done {
+      color: var(--green);
+    }
+
+    .status-partial {
+      color: var(--yellow);
+    }
+
+    .status-planned {
+      color: var(--purple);
+    }
+
+    .status-future {
+      color: var(--text-muted);
+    }
+
+    .visual-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82em;
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .vs-done {
+      background: rgba(76, 175, 80, 0.12);
+      color: var(--green);
+    }
+
+    .vs-partial {
+      background: rgba(255, 193, 7, 0.12);
+      color: var(--yellow);
+    }
+
+    .vs-placeholder {
+      background: rgba(239, 83, 80, 0.12);
+      color: var(--red);
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: var(--text-muted);
+      font-size: 0.82em;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Misc ── */
+    code {
+      background: var(--bg3);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 0.9em;
+      color: var(--accent);
+    }
+
+    ul {
+      margin-left: 20px;
+      color: var(--text-muted);
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    p {
+      margin-bottom: 12px;
+    }
+
+    .muted {
+      color: var(--text-muted);
+    }
+
+    .small {
+      font-size: 0.85em;
+    }
+
+    .accent {
+      color: var(--accent);
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>Bullet Heaven</h1>
+    <div class="tagline">Vampire Survivors-like &bull; Godot 4.5 &bull; GDScript</div>
+    <div class="version-badge">Last updated: 2026-03-20</div>
+  </header>
+
+  <div class="container">
+
+    <!-- ═══════════════════════════════ OVERVIEW ═══════════════════════════════ -->
+    <section>
+      <h2 class="section-title">Overview <span class="section-tag">What is this</span></h2>
+
+      <div class="grid-auto">
+        <div class="stat-card">
+          <div class="stat-label">Genre</div>
+          <div class="stat-value" style="font-size: 1.2em;">Bullet Heaven</div>
+          <div class="stat-note">Auto-attack survival roguelite</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Viewport</div>
+          <div class="stat-value" style="font-size: 1.2em;">960x540</div>
+          <div class="stat-note">Stretched 2x to 1920x1080</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Renderer</div>
+          <div class="stat-value" style="font-size: 1.2em;">GL Compat</div>
+          <div class="stat-note">Broad hardware coverage</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Weapons</div>
+          <div class="stat-value">6+6</div>
+          <div class="stat-note">Base + Evolved variants</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Passives</div>
+          <div class="stat-value">8</div>
+          <div class="stat-note">Stat-boosting items</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Object Pools</div>
+          <div class="stat-value">9</div>
+          <div class="stat-note">Enemies, FX, pickups, etc.</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 24px;">
+        <div class="kf-box">
+          <div class="kf-title">The Loop</div>
+          <div class="kf-text">Boot &rarr; Main Menu &rarr; Game (auto-fire, dodge, collect XP, level up, choose
+            upgrades) &rarr; Game Over / Victory &rarr; Retry</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════ WEAPONS ═══════════════════════════════ -->
+    <section>
+      <h2 class="section-title">Weapons <span class="section-tag">6 Base Types</span></h2>
+
+      <p class="muted small" style="margin-bottom: 16px;">All weapons auto-fire. Each scales from Level 1&ndash;5 with
+        increasing damage, fire rate, pierce, projectile count, or area depending on type. Starting weapon: Spectral
+        Slash.</p>
+
+      <div class="grid-2">
+        <div class="weapon-card">
+          <div class="weapon-header">
+            <div class="weapon-dot" style="background: #c0c0c0;"></div>
+            <div class="weapon-name">Spectral Slash</div>
+            <div class="weapon-type-tag">Melee</div>
+          </div>
+          <div class="weapon-desc">Sweeps a ghostly blade through nearby enemies in a 120-degree arc.</div>
+          <div class="weapon-stats">
+            <div class="weapon-stat"><strong>14</strong> dmg (+4/lv)</div>
+            <div class="weapon-stat"><strong>1.2s</strong> rate (+0.2/lv)</div>
+            <div class="weapon-stat"><strong>90px</strong> radius</div>
+            <div class="weapon-stat"><strong>300px</strong> range</div>
+          </div>
+        </div>
+
+        <div class="weapon-card">
+          <div class="weapon-header">
+            <div class="weapon-dot" style="background: #ffd94d;"></div>
+            <div class="weapon-name">Holy Aura</div>
+            <div class="weapon-type-tag">AOE</div>
+          </div>
+          <div class="weapon-desc">Pulses damage in a circle around you. Bypasses collision.</div>
+          <div class="weapon-stats">
+            <div class="weapon-stat"><strong>8</strong> dmg (+3/lv)</div>
+            <div class="weapon-stat"><strong>0.5s</strong> rate (+0.05/lv)</div>
+            <div class="weapon-stat"><strong>80px</strong> radius</div>
+          </div>
+        </div>
+
+        <div class="weapon-card">
+          <div class="weapon-header">
+            <div class="weapon-dot" style="background: #6699ff;"></div>
+            <div class="weapon-name">Chain Lightning</div>
+            <div class="weapon-type-tag">Chain</div>
+          </div>
+          <div class="weapon-desc">Zaps nearest enemy and arcs to others. Chains scale with pierce bonus.</div>
+          <div class="weapon-stats">
+            <div class="weapon-stat"><strong>12</strong> dmg (+4/lv)</div>
+            <div class="weapon-stat"><strong>0.8s</strong> rate (+0.1/lv)</div>
+            <div class="weapon-stat"><strong>2</strong> chains (+1/lv)</div>
+            <div class="weapon-stat"><strong>120px</strong> hop</div>
+          </div>
+        </div>
+
+        <div class="weapon-card">
+          <div class="weapon-header">
+            <div class="weapon-dot" style="background: #ff6619;"></div>
+            <div class="weapon-name">Flame Guard</div>
+            <div class="weapon-type-tag">Orbit</div>
+          </div>
+          <div class="weapon-desc">Fireballs orbit the player. Persistent damage field that scales with area.</div>
+          <div class="weapon-stats">
+            <div class="weapon-stat"><strong>7</strong> dmg (+2/lv)</div>
+            <div class="weapon-stat"><strong>2</strong> orbs (+1/lv)</div>
+            <div class="weapon-stat"><strong>180</strong> px/s orbit</div>
+            <div class="weapon-stat"><strong>60px</strong> radius</div>
+          </div>
+        </div>
+
+        <div class="weapon-card">
+          <div class="weapon-header">
+            <div class="weapon-dot" style="background: #66ff66;"></div>
+            <div class="weapon-name">Toxic Nova</div>
+            <div class="weapon-type-tag">DOT</div>
+          </div>
+          <div class="weapon-desc">Throws a poison zone at nearest enemy. Ticks damage over time.</div>
+          <div class="weapon-stats">
+            <div class="weapon-stat"><strong>5</strong> dmg (+2/lv)</div>
+            <div class="weapon-stat"><strong>0.5s</strong> tick</div>
+            <div class="weapon-stat"><strong>3.0s</strong> duration</div>
+            <div class="weapon-stat"><strong>70px</strong> radius</div>
+          </div>
+        </div>
+
+        <div class="weapon-card">
+          <div class="weapon-header">
+            <div class="weapon-dot" style="background: #cc66ff;"></div>
+            <div class="weapon-name">Arcane Missiles</div>
+            <div class="weapon-type-tag">Barrage</div>
+          </div>
+          <div class="weapon-desc">Launches homing missiles at random enemies with splash on impact.</div>
+          <div class="weapon-stats">
+            <div class="weapon-stat"><strong>15</strong> dmg (+3/lv)</div>
+            <div class="weapon-stat"><strong>2</strong> missiles (+1/lv)</div>
+            <div class="weapon-stat"><strong>200</strong> px/s</div>
+            <div class="weapon-stat"><strong>30px</strong> splash</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════ EVOLUTIONS ═══════════════════════════════ -->
+    <section>
+      <h2 class="section-title">Evolutions <span class="section-tag">6 Upgrades</span></h2>
+
+      <p class="muted small" style="margin-bottom: 16px;">When a base weapon reaches <strong>Level 5</strong> and the
+        player owns the corresponding passive (any level), the weapon auto-evolves into a powered variant.</p>
+
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div class="evo-card">
+          <div class="evo-part">
+            <div class="evo-label">Weapon (Lv5)</div>
+            <div class="evo-name">Spectral Slash</div>
+          </div>
+          <div class="evo-arrow">+</div>
+          <div class="evo-part">
+            <div class="evo-label">Passive</div>
+            <div class="evo-name">Spinach</div>
+          </div>
+          <div class="evo-arrow">&rarr;</div>
+          <div class="evo-part evo-result">
+            <div class="evo-label">Evolution</div>
+            <div class="evo-name">Phantom Reaper</div>
+            <div style="font-size:0.75em;color:var(--text-muted);">360&deg; sweep, 120px, afterimage</div>
+          </div>
+        </div>
+
+        <div class="evo-card">
+          <div class="evo-part">
+            <div class="evo-label">Weapon (Lv5)</div>
+            <div class="evo-name">Holy Aura</div>
+          </div>
+          <div class="evo-arrow">+</div>
+          <div class="evo-part">
+            <div class="evo-label">Passive</div>
+            <div class="evo-name">Empty Tome</div>
+          </div>
+          <div class="evo-arrow">&rarr;</div>
+          <div class="evo-part evo-result">
+            <div class="evo-label">Evolution</div>
+            <div class="evo-name">Divine Nova</div>
+            <div style="font-size:0.75em;color:var(--text-muted);">150px radius, 30 dmg, faster pulse</div>
+          </div>
+        </div>
+
+        <div class="evo-card">
+          <div class="evo-part">
+            <div class="evo-label">Weapon (Lv5)</div>
+            <div class="evo-name">Chain Lightning</div>
+          </div>
+          <div class="evo-arrow">+</div>
+          <div class="evo-part">
+            <div class="evo-label">Passive</div>
+            <div class="evo-name">Duplicator</div>
+          </div>
+          <div class="evo-arrow">&rarr;</div>
+          <div class="evo-part evo-result">
+            <div class="evo-label">Evolution</div>
+            <div class="evo-name">Storm Caller</div>
+            <div style="font-size:0.75em;color:var(--text-muted);">8 chains, 500px range, 180px hop</div>
+          </div>
+        </div>
+
+        <div class="evo-card">
+          <div class="evo-part">
+            <div class="evo-label">Weapon (Lv5)</div>
+            <div class="evo-name">Flame Guard</div>
+          </div>
+          <div class="evo-arrow">+</div>
+          <div class="evo-part">
+            <div class="evo-label">Passive</div>
+            <div class="evo-name">Bracer</div>
+          </div>
+          <div class="evo-arrow">&rarr;</div>
+          <div class="evo-part evo-result">
+            <div class="evo-label">Evolution</div>
+            <div class="evo-name">Inferno Ring</div>
+            <div style="font-size:0.75em;color:var(--text-muted);">6 orbiters, 90px radius, 270 px/s</div>
+          </div>
+        </div>
+
+        <div class="evo-card">
+          <div class="evo-part">
+            <div class="evo-label">Weapon (Lv5)</div>
+            <div class="evo-name">Toxic Nova</div>
+          </div>
+          <div class="evo-arrow">+</div>
+          <div class="evo-part">
+            <div class="evo-label">Passive</div>
+            <div class="evo-name">Candelabra</div>
+          </div>
+          <div class="evo-arrow">&rarr;</div>
+          <div class="evo-part evo-result">
+            <div class="evo-label">Evolution</div>
+            <div class="evo-name">Plague Storm</div>
+            <div style="font-size:0.75em;color:var(--text-muted);">120px zone, 0.3s ticks, 6s duration</div>
+          </div>
+        </div>
+
+        <div class="evo-card">
+          <div class="evo-part">
+            <div class="evo-label">Weapon (Lv5)</div>
+            <div class="evo-name">Arcane Missiles</div>
+          </div>
+          <div class="evo-arrow">+</div>
+          <div class="evo-part">
+            <div class="evo-label">Passive</div>
+            <div class="evo-name">Clover</div>
+          </div>
+          <div class="evo-arrow">&rarr;</div>
+          <div class="evo-part evo-result">
+            <div class="evo-label">Evolution</div>
+            <div class="evo-name">Meteor Shower</div>
+            <div style="font-size:0.75em;color:var(--text-muted);">6 meteors, 60px splash, 600px range</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════ PASSIVES ═══════════════════════════════ -->
+    <section>
+      <h2 class="section-title">Passives <span class="section-tag">8 Items, Max Lv5</span></h2>
+
+      <p class="muted small" style="margin-bottom: 16px;">Each passive stacks additively per level. Player can hold up
+        to 6 passive slots. Owning the right passive unlocks weapon evolutions.</p>
+
+      <div style="background: var(--bg); border-radius: 8px; padding: 12px 16px;">
+        <div class="passive-row">
+          <div class="passive-dot" style="background: #33cc33;"></div>
+          <div class="passive-name">Spinach</div>
+          <div class="passive-effect">+10% Damage per level</div>
+          <div class="passive-max">Lv5: +50%</div>
+        </div>
+        <div class="passive-row">
+          <div class="passive-dot" style="background: #996633;"></div>
+          <div class="passive-name">Empty Tome</div>
+          <div class="passive-effect">+8% Attack Speed per level</div>
+          <div class="passive-max">Lv5: +40%</div>
+        </div>
+        <div class="passive-row">
+          <div class="passive-dot" style="background: #cc9933;"></div>
+          <div class="passive-name">Bracer</div>
+          <div class="passive-effect">+10% Projectile Speed per level</div>
+          <div class="passive-max">Lv5: +50%</div>
+        </div>
+        <div class="passive-row">
+          <div class="passive-dot" style="background: #66ccff;"></div>
+          <div class="passive-name">Duplicator</div>
+          <div class="passive-effect">+1 Pierce/Chain per level</div>
+          <div class="passive-max">Lv5: +5</div>
+        </div>
+        <div class="passive-row">
+          <div class="passive-dot" style="background: #b3e6ff;"></div>
+          <div class="passive-name">Wings</div>
+          <div class="passive-effect">+8% Move Speed per level</div>
+          <div class="passive-max">Lv5: +40%</div>
+        </div>
+        <div class="passive-row">
+          <div class="passive-dot" style="background: #8033cc;"></div>
+          <div class="passive-name">Attractorb</div>
+          <div class="passive-effect">+15% Pickup Range per level</div>
+          <div class="passive-max">Lv5: +75%</div>
+        </div>
+        <div class="passive-row">
+          <div class="passive-dot" style="background: #ffab40;"></div>
+          <div class="passive-name">Candelabra</div>
+          <div class="passive-effect">+8% Area per level</div>
+          <div class="passive-max">Lv5: +40%</div>
+        </div>
+        <div class="passive-row">
+          <div class="passive-dot" style="background: #7cb342;"></div>
+          <div class="passive-name">Clover</div>
+          <div class="passive-effect">+1 Projectile/Orbiter per level</div>
+          <div class="passive-max">Lv5: +5</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════ ENEMIES ═══════════════════════════════ -->
+    <section>
+      <h2 class="section-title">Enemies &amp; Scaling <span class="section-tag">Time-Based</span></h2>
+
+      <div class="grid-2" style="margin-bottom: 20px;">
+        <div class="stat-card">
+          <div class="stat-label">Spawn Distance</div>
+          <div class="stat-value" style="font-size: 1.3em;">600px</div>
+          <div class="stat-note">Ring around player</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Spawn Interval</div>
+          <div class="stat-value" style="font-size: 1.3em;">1.0s</div>
+          <div class="stat-note">Batch every second</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Max On-Screen</div>
+          <div class="stat-value" style="font-size: 1.3em;">200</div>
+          <div class="stat-note">Hard cap, pooled</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Type (v1)</div>
+          <div class="stat-value" style="font-size: 1.3em;">Single</div>
+          <div class="stat-note">Chase + contact damage</div>
+        </div>
+      </div>
+
+      <div class="sub-title">Linear Scaling Formulas</div>
+      <table>
+        <tr>
+          <th>Stat</th>
+          <th>At 0 min</th>
+          <th>At 5 min</th>
+          <th>At 10 min</th>
+          <th>Formula</th>
+        </tr>
+        <tr>
+          <td><strong>Per Spawn</strong></td>
+          <td>1</td>
+          <td>3&ndash;4</td>
+          <td>6</td>
+          <td><code>1 + min * 0.5</code></td>
+        </tr>
+        <tr>
+          <td><strong>HP</strong></td>
+          <td>30</td>
+          <td>80</td>
+          <td>130</td>
+          <td><code>30 + min * 10</code></td>
+        </tr>
+        <tr>
+          <td><strong>Speed</strong></td>
+          <td>60 px/s</td>
+          <td>85 px/s</td>
+          <td>110 px/s</td>
+          <td><code>60 + min * 5</code></td>
+        </tr>
+        <tr>
+          <td><strong>Contact Dmg</strong></td>
+          <td>10</td>
+          <td>25</td>
+          <td>40</td>
+          <td><code>10 + min * 3</code></td>
+        </tr>
+        <tr>
+          <td><strong>XP Value</strong></td>
+          <td>5</td>
+          <td>15</td>
+          <td>25</td>
+          <td><code>5 + min * 2</code></td>
+        </tr>
+      </table>
+    </section>
+
+    <!-- ═══════════════════════════════ PROGRESSION ═══════════════════════════════ -->
+    <section>
+      <h2 class="section-title">Progression <span class="section-tag">XP &amp; Leveling</span></h2>
+
+      <div class="grid-2">
+        <div>
+          <div class="sub-title">XP Curve</div>
+          <div class="kf-box">
+            <div class="kf-title"><code>10 * level ^ 1.3</code></div>
+            <div class="kf-text">Exponential ramp. Lv1: 10 XP, Lv5: ~85 XP, Lv10: ~200 XP, Lv20: ~500 XP</div>
+          </div>
+          <ul class="small" style="margin-top: 12px;">
+            <li>XP gems drop from every enemy kill</li>
+            <li>Gem value = enemy XP value (scales with time)</li>
+            <li>Gems attracted via pickup area (boosted by Attractorb)</li>
+            <li>God mode: each pickup = 50% of next level</li>
+          </ul>
+        </div>
+        <div>
+          <div class="sub-title">Level-Up Choices</div>
+          <ul class="small">
+            <li>Each level: choose 1 of 3 random options</li>
+            <li>Options: new weapon, weapon upgrade, new passive, passive upgrade</li>
+            <li>Cards color-coded by type (silver/gold/green/magenta)</li>
+            <li>3 rerolls per run (infinite in god mode)</li>
+            <li>6 weapon slots + 6 passive slots max</li>
+            <li>Multi-level-ups queued via <code>pending_levels</code></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════ ARCHITECTURE ═══════════════════════════════ -->
+    <section>
+      <h2 class="section-title">Architecture <span class="section-tag">5 Autoloads</span></h2>
+
+      <div class="grid-auto" style="margin-bottom: 24px;">
+        <div class="arch-node">
+          <div class="arch-title">SignalBus</div>
+          <div class="arch-desc">10 signals. Decoupled event bus for all game systems.</div>
+        </div>
+        <div class="arch-node">
+          <div class="arch-title">GameManager</div>
+          <div class="arch-desc">HP, XP, leveling, inventories, stat multipliers, evolution checks, god mode.</div>
+        </div>
+        <div class="arch-node">
+          <div class="arch-title">PoolManager</div>
+          <div class="arch-desc">9 object pools. Acquire/release pattern. Double-release guards.</div>
+        </div>
+        <div class="arch-node">
+          <div class="arch-title">AudioManager</div>
+          <div class="arch-desc">16 pooled AudioStreamPlayers, 50ms dedup, wire_button_sfx() helper.</div>
+        </div>
+        <div class="arch-node">
+          <div class="arch-title">UiTheme</div>
+          <div class="arch-desc">Kenney fantasy-ui-borders textures, Aldo the Apache font, ornate panels/buttons/slots.
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-title">Key Patterns</div>
+      <div class="grid-2">
+        <ul class="small">
+          <li><code>distance_squared_to</code> for nearest-enemy (no sqrt)</li>
+          <li>UI panels: <code>PROCESS_MODE_ALWAYS</code> (work while paused)</li>
+          <li>Enemy spawner: manual delta accumulator, not Timer nodes</li>
+          <li>Tweens for flash effects (not await)</li>
+        </ul>
+        <ul class="small">
+          <li>Pooled entities: <code>process_mode=DISABLED</code>, <code>visible=false</code> when released</li>
+          <li>Entities removed from groups on release, re-added on acquire</li>
+          <li><code>_is_dead</code> flag prevents double-death from concurrent hits</li>
+          <li><code>on_hit(hit_enemy)</code> pattern avoids splash self-damage</li>
+        </ul>
+      </div>
+
+      <div class="sub-title" style="margin-top: 20px;">Physics Layers</div>
+      <table>
+        <tr>
+          <th>Layer</th>
+          <th>Name</th>
+          <th>Purpose</th>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>Player</td>
+          <td>Player body collision</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Enemies</td>
+          <td>Enemy bodies (chase + contact)</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Player Projectiles</td>
+          <td>Weapon projectiles &amp; hitboxes</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Pickups</td>
+          <td>XP gems, heal pickups</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>Enemy Projectiles</td>
+          <td>Reserved for future use</td>
+        </tr>
+      </table>
+
+      <div class="sub-title" style="margin-top: 20px;">Object Pools</div>
+      <table>
+        <tr>
+          <th>Pool</th>
+          <th>Scene</th>
+          <th>Count</th>
+        </tr>
+        <tr>
+          <td>enemy</td>
+          <td>base_enemy.tscn</td>
+          <td>50</td>
+        </tr>
+        <tr>
+          <td>projectile</td>
+          <td>base_projectile.tscn</td>
+          <td>100</td>
+        </tr>
+        <tr>
+          <td>xp_gem</td>
+          <td>xp_gem.tscn</td>
+          <td>100</td>
+        </tr>
+        <tr>
+          <td>damage_number</td>
+          <td>damage_number.tscn</td>
+          <td>50</td>
+        </tr>
+        <tr>
+          <td>aoe_effect</td>
+          <td>aoe_effect.tscn</td>
+          <td>10</td>
+        </tr>
+        <tr>
+          <td>chain_effect</td>
+          <td>chain_effect.tscn</td>
+          <td>10</td>
+        </tr>
+        <tr>
+          <td>melee_effect</td>
+          <td>melee_effect.tscn</td>
+          <td>10</td>
+        </tr>
+        <tr>
+          <td>toxic_zone</td>
+          <td>toxic_zone.tscn</td>
+          <td>15</td>
+        </tr>
+        <tr>
+          <td>homing_missile</td>
+          <td>homing_missile.tscn</td>
+          <td>30</td>
+        </tr>
+      </table>
+    </section>
+
+    <!-- ═══════════════════════════════ VISUAL STATUS ═══════════════════════════════ -->
+    <section>
+      <h2 class="section-title">Visual Status <span class="section-tag">What Looks Real vs Placeholder</span></h2>
+
+      <div class="sub-title">UI Layer &mdash; Ornate Kenney Textures</div>
+      <div class="grid-2" style="margin-bottom: 24px;">
+        <div>
+          <table>
+            <tr>
+              <th>Element</th>
+              <th>Status</th>
+            </tr>
+            <tr>
+              <td>Panel borders (all menus)</td>
+              <td><span class="visual-status vs-done">Ornate NinePatch</span></td>
+            </tr>
+            <tr>
+              <td>Buttons</td>
+              <td><span class="visual-status vs-done">Textured panel-004</span></td>
+            </tr>
+            <tr>
+              <td>HUD slot frames</td>
+              <td><span class="visual-status vs-done">Textured borders</span></td>
+            </tr>
+            <tr>
+              <td>Level-up cards</td>
+              <td><span class="visual-status vs-done">Color-coded + icons</span></td>
+            </tr>
+            <tr>
+              <td>Weapon/passive icons</td>
+              <td><span class="visual-status vs-done">Kenney textures</span></td>
+            </tr>
+            <tr>
+              <td>Dividers</td>
+              <td><span class="visual-status vs-done">Gold fade dividers</span></td>
+            </tr>
+            <tr>
+              <td>Level badges</td>
+              <td><span class="visual-status vs-done">"M" max labels</span></td>
+            </tr>
+            <tr>
+              <td>Evolution hints</td>
+              <td><span class="visual-status vs-done">HUD hint text</span></td>
+            </tr>
+          </table>
+        </div>
+        <div>
+          <div class="kf-box" style="border-color: var(--green);">
+            <div class="kf-title">Textures In Use</div>
+            <div class="kf-text">
+              <strong>fantasy-ui-borders:</strong> 5 PNGs (panel borders, button, slot frame, divider)<br>
+              <strong>particle-pack:</strong> ~10 PNGs (weapon effect icons)<br>
+              <strong>scribble-platformer:</strong> ~7 PNGs (item icons)<br>
+              <strong>ninja-adventure:</strong> 2 PNGs (katana, scroll)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-title">Gameplay Layer &mdash; Still Placeholder</div>
+      <table>
+        <tr>
+          <th>Entity</th>
+          <th>Current Visual</th>
+          <th>Status</th>
+        </tr>
+        <tr>
+          <td>Player</td>
+          <td>Blue ColorRect (20x20)</td>
+          <td><span class="visual-status vs-placeholder">Placeholder</span></td>
+        </tr>
+        <tr>
+          <td>Enemies</td>
+          <td>Red ColorRect</td>
+          <td><span class="visual-status vs-placeholder">Placeholder</span></td>
+        </tr>
+        <tr>
+          <td>Projectiles</td>
+          <td>Colored ColorRect</td>
+          <td><span class="visual-status vs-placeholder">Placeholder</span></td>
+        </tr>
+        <tr>
+          <td>XP Gems</td>
+          <td>Green ColorRect + bob</td>
+          <td><span class="visual-status vs-placeholder">Placeholder</span></td>
+        </tr>
+        <tr>
+          <td>Heal Pickups</td>
+          <td>Red ColorRect + bob</td>
+          <td><span class="visual-status vs-placeholder">Placeholder</span></td>
+        </tr>
+        <tr>
+          <td>Orbiters</td>
+          <td>ColorRect + <code>_draw()</code> glow + GPUParticles2D trail</td>
+          <td><span class="visual-status vs-done">Upgraded</span></td>
+        </tr>
+        <tr>
+          <td>Homing Missiles</td>
+          <td>ColorRect + <code>_draw()</code> glow/nose + GPUParticles2D trail</td>
+          <td><span class="visual-status vs-done">Upgraded</span></td>
+        </tr>
+        <tr>
+          <td>AOE Effect</td>
+          <td><code>_draw()</code> ring + segments + cross + GPUParticles2D burst</td>
+          <td><span class="visual-status vs-done">Upgraded</span></td>
+        </tr>
+        <tr>
+          <td>Chain Lightning</td>
+          <td><code>_draw()</code> bolt + glow + forks + GPUParticles2D impact</td>
+          <td><span class="visual-status vs-done">Upgraded</span></td>
+        </tr>
+        <tr>
+          <td>Melee Slash</td>
+          <td><code>_draw()</code> arc + crescent fill + wake + GPUParticles2D sparks/dust</td>
+          <td><span class="visual-status vs-done">Upgraded</span></td>
+        </tr>
+        <tr>
+          <td>Toxic Zone</td>
+          <td><code>_draw()</code> pulse + inner ring + bubbles + GPUParticles2D</td>
+          <td><span class="visual-status vs-done">Upgraded</span></td>
+        </tr>
+        <tr>
+          <td>Floor</td>
+          <td><code>_draw()</code> checkered 64px</td>
+          <td><span class="visual-status vs-placeholder">Procedural</span></td>
+        </tr>
+        <tr>
+          <td>Damage Numbers</td>
+          <td>Themed font, gravity float</td>
+          <td><span class="visual-status vs-done">Good</span></td>
+        </tr>
+      </table>
+    </section>
+
+    <!-- ═══════════════════════════════ AUDIO ═══════════════════════════════ -->
+    <section>
+      <h2 class="section-title">Audio <span class="section-tag">SFX Only, No Music</span></h2>
+
+      <p class="muted small" style="margin-bottom: 16px;">9 of 10 SFX are custom jsfxr .wav files. Only
+        <code>lowDown.ogg</code> is from the Kenney digital-audio pack. AudioManager pools 16 players with 50ms dedup to
+        prevent sound stacking.
+      </p>
+
+      <div class="grid-2">
+        <div>
+          <div class="sub-title">Gameplay Sounds</div>
+          <table>
+            <tr>
+              <th>Sound</th>
+              <th>File</th>
+            </tr>
+            <tr>
+              <td>Weapon fire</td>
+              <td>jsfxr/laserShoot_short.wav</td>
+            </tr>
+            <tr>
+              <td>Enemy hit</td>
+              <td>jsfxr/hitHurt.wav</td>
+            </tr>
+            <tr>
+              <td>Enemy kill</td>
+              <td>jsfxr/explosion.wav</td>
+            </tr>
+            <tr>
+              <td>XP pickup</td>
+              <td>jsfxr/pickupCoin.wav</td>
+            </tr>
+            <tr>
+              <td>Level up</td>
+              <td>jsfxr/powerUp.wav</td>
+            </tr>
+            <tr>
+              <td>Player hurt</td>
+              <td>jsfxr/deathSound.wav</td>
+            </tr>
+          </table>
+        </div>
+        <div>
+          <div class="sub-title">UI Sounds</div>
+          <table>
+            <tr>
+              <th>Sound</th>
+              <th>File</th>
+            </tr>
+            <tr>
+              <td>Button hover</td>
+              <td>jsfxr/menuHover.wav</td>
+            </tr>
+            <tr>
+              <td>Button click</td>
+              <td>jsfxr/menuConfirm.wav</td>
+            </tr>
+            <tr>
+              <td>Panel open</td>
+              <td>jsfxr/uiOpen.wav</td>
+            </tr>
+            <tr>
+              <td>Panel close</td>
+              <td>kenney/lowDown.ogg</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════ SETTINGS ═══════════════════════════════ -->
+    <section>
+      <h2 class="section-title">Settings &amp; UI Flow <span class="section-tag">Implemented</span></h2>
+
+      <div class="grid-2">
+        <div>
+          <div class="sub-title">Settings Panel</div>
+          <ul class="small">
+            <li>Master volume slider (0&ndash;100%)</li>
+            <li>SFX volume slider (0&ndash;100%)</li>
+            <li>Resolution dropdown (540p / 720p / 1080p / 1440p)</li>
+            <li>Fullscreen toggle (checkbox)</li>
+            <li>God Mode toggle (checkbox, not persisted)</li>
+            <li>Persists to <code>user://settings.cfg</code> via ConfigFile</li>
+          </ul>
+        </div>
+        <div>
+          <div class="sub-title">Screen Flow</div>
+          <div
+            style="background: var(--bg); padding: 16px; border-radius: 8px; font-family: monospace; font-size: 0.85em; color: var(--text-muted); line-height: 2;">
+            Main Menu<br>
+            &nbsp;&nbsp;&#x251C; Start &rarr; Game<br>
+            &nbsp;&nbsp;&#x251C; Settings &rarr; Settings Panel<br>
+            &nbsp;&nbsp;&#x2514; Quit<br>
+            <br>
+            Game (WASD/Arrows move, auto-fire)<br>
+            &nbsp;&nbsp;&#x251C; ESC &rarr; Pause Menu<br>
+            &nbsp;&nbsp;&#x2502;&nbsp;&nbsp;&#x251C; Resume<br>
+            &nbsp;&nbsp;&#x2502;&nbsp;&nbsp;&#x251C; Settings<br>
+            &nbsp;&nbsp;&#x2502;&nbsp;&nbsp;&#x2514; Main Menu<br>
+            &nbsp;&nbsp;&#x251C; Level Up &rarr; 3-Card Select<br>
+            &nbsp;&nbsp;&#x2514; HP=0 &rarr; Game Over<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#x251C; Retry<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#x2514; Main Menu
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-title" style="margin-top: 20px;">God Mode Details</div>
+      <ul class="small">
+        <li>Player takes zero damage</li>
+        <li>XP gain = 50% of next level per pickup</li>
+        <li>Infinite rerolls during level-up</li>
+        <li>Heal to full when toggled on mid-game</li>
+        <li>Not persisted to settings file (resets each launch)</li>
+      </ul>
+    </section>
+
+    <!-- ═══════════════════════════════ ROADMAP ═══════════════════════════════ -->
+    <section>
+      <h2 class="section-title">Roadmap <span class="section-tag">Development Phases</span></h2>
+
+      <!-- Visual track -->
+      <div class="roadmap-track">
+        <div class="roadmap-node">
+          <div class="roadmap-dot" style="background: var(--green);"></div>
+          <div class="roadmap-phase">A1</div>
+          <div class="roadmap-label">Core Loop</div>
+          <div class="roadmap-pct">100%</div>
+        </div>
+        <div class="roadmap-node">
+          <div class="roadmap-dot" style="background: var(--green);"></div>
+          <div class="roadmap-phase">A2</div>
+          <div class="roadmap-label">Archetypes</div>
+          <div class="roadmap-pct">100%</div>
+        </div>
+        <div class="roadmap-node">
+          <div class="roadmap-dot" style="background: var(--green);"></div>
+          <div class="roadmap-phase">A3a</div>
+          <div class="roadmap-label">Weapons</div>
+          <div class="roadmap-pct">100%</div>
+        </div>
+        <div class="roadmap-node">
+          <div class="roadmap-dot" style="background: var(--green);"></div>
+          <div class="roadmap-phase">A3a-fix</div>
+          <div class="roadmap-label">Bug Audit</div>
+          <div class="roadmap-pct">100%</div>
+        </div>
+        <div class="roadmap-node">
+          <div class="roadmap-dot" style="background: var(--yellow); box-shadow: 0 0 8px rgba(255, 193, 7, 0.5);"></div>
+          <div class="roadmap-phase" style="color: var(--yellow);">A3b-UI</div>
+          <div class="roadmap-label">UI Polish</div>
+          <div class="roadmap-pct">~40%</div>
+        </div>
+        <div class="roadmap-node">
+          <div class="roadmap-dot" style="background: var(--purple); box-shadow: 0 0 8px rgba(171, 71, 188, 0.5);">
+          </div>
+          <div class="roadmap-phase" style="color: var(--purple);">A3b-VFX</div>
+          <div class="roadmap-label">Game Visuals</div>
+          <div class="roadmap-pct">~50%</div>
+        </div>
+        <div class="roadmap-node">
+          <div class="roadmap-dot" style="background: var(--purple);"></div>
+          <div class="roadmap-phase">A3c</div>
+          <div class="roadmap-label">Content</div>
+          <div class="roadmap-pct">0%</div>
+        </div>
+        <div class="roadmap-node">
+          <div class="roadmap-dot" style="background: var(--border);"></div>
+          <div class="roadmap-phase">A4+</div>
+          <div class="roadmap-label">Balance &amp; Beyond</div>
+          <div class="roadmap-pct">Future</div>
+        </div>
+      </div>
+
+      <!-- Phase detail cards -->
+      <div class="phase-card" style="border-color: var(--green);">
+        <div class="phase-header">
+          <div><strong>A1&ndash;A3a-fix</strong> &mdash; Foundation</div>
+          <div class="phase-tag" style="background: rgba(76, 175, 80, 0.15); color: var(--green);">Complete</div>
+        </div>
+        <div class="phase-bar-track">
+          <div class="phase-bar-fill" style="width: 100%; background: var(--green);"></div>
+        </div>
+        <div class="phase-detail">
+          <ul>
+            <li>Complete game loop: main menu, gameplay, level-up, game over, retry</li>
+            <li>6 base weapons + 6 evolutions + 8 passives, all functional with scaling</li>
+            <li>Object pooling (9 pools), signal bus, stat multiplier system</li>
+            <li>17-bug audit pass: pool hardening, double-death guards, settings persistence</li>
+            <li>Audio system with 10 SFX, dedup, button wiring</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase-card" style="border-color: var(--yellow);">
+        <div class="phase-header">
+          <div><strong>A3b-UI</strong> &mdash; UI Polish</div>
+          <div class="phase-tag" style="background: rgba(255, 193, 7, 0.15); color: var(--yellow);">~40% Done</div>
+        </div>
+        <div class="phase-bar-track">
+          <div class="phase-bar-fill" style="width: 40%; background: var(--yellow);"></div>
+        </div>
+        <div class="phase-detail">
+          <ul>
+            <li><strong>Done:</strong> Ornate NinePatchRect borders, textured buttons, slot frames, gold dividers,
+              weapon/passive icons (particle-pack + scribble-platformer), color-coded level-up cards, level badges,
+              evolution hints</li>
+            <li><strong>Remaining:</strong> Further HUD polish, progress bar textures, potential icon upgrades
+              (board-game-icons or rune-pack), victory screen</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase-card" style="border-color: var(--purple);">
+        <div class="phase-header">
+          <div><strong>A3b-VFX</strong> &mdash; Gameplay Visuals</div>
+          <div class="phase-tag" style="background: rgba(171, 71, 188, 0.15); color: var(--purple);">~50% Done</div>
+        </div>
+        <div class="phase-bar-track">
+          <div class="phase-bar-fill" style="width: 50%; background: var(--purple);"></div>
+        </div>
+        <div class="phase-detail">
+          <ul>
+            <li><strong>Done:</strong> All 6 base weapon VFX upgraded &mdash; GPUParticles2D (texture=null pixel blocks) + enhanced <code>_draw()</code> with draw_rect layers. Pixelated blocky aesthetic with chunky blocks (6-12px) + fine pixel trails (2-4px).</li>
+            <li><strong>Weapons upgraded:</strong> Spectral Slash (sparks + dust + crescent fill), Holy Aura (burst + ring segments + cross), Chain Lightning (impact + glow + branch forks), Toxic Nova (bubbles + concentric pulse), Arcane Missiles (trail + glow rect), Flame Guard (orbiter trail + hot center)</li>
+            <li><strong>Remaining:</strong> Evolution weapon visual overhaul, entity sprites (player/enemies/projectiles/pickups still ColorRects), hit/death effects, floor tilemap</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase-card">
+        <div class="phase-header">
+          <div><strong>A3c</strong> &mdash; Content Expansion</div>
+          <div class="phase-tag" style="background: rgba(136, 136, 160, 0.15); color: var(--text-muted);">Planned</div>
+        </div>
+        <div class="phase-bar-track">
+          <div class="phase-bar-fill" style="width: 0%;"></div>
+        </div>
+        <div class="phase-detail">
+          <ul>
+            <li>Enemy variants (swarmers, tanks, ranged)</li>
+            <li>First boss encounter</li>
+            <li>Crown (+XP%) and Armor (+HP) passives</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase-card">
+        <div class="phase-header">
+          <div><strong>A4</strong> &mdash; Balance &amp; Polish</div>
+          <div class="phase-tag" style="background: rgba(136, 136, 160, 0.15); color: var(--text-muted);">Planned</div>
+        </div>
+        <div class="phase-bar-track">
+          <div class="phase-bar-fill" style="width: 0%;"></div>
+        </div>
+        <div class="phase-detail">
+          <ul>
+            <li>DPS balance tuning across all weapon combos</li>
+            <li>Win condition (15 min), victory screen</li>
+            <li>Music, screen shake, juice effects</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase-card">
+        <div class="phase-header">
+          <div><strong>B1+</strong> &mdash; Future Content</div>
+          <div class="phase-tag" style="background: rgba(136, 136, 160, 0.15); color: var(--text-muted);">Future</div>
+        </div>
+        <div class="phase-bar-track">
+          <div class="phase-bar-fill" style="width: 0%;"></div>
+        </div>
+        <div class="phase-detail">
+          <ul>
+            <li>B1: Proper pixel art, particles, screen shake, input prompts</li>
+            <li>B2: Meta progression, characters, achievements, map variety</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════ FUTURE IDEAS ═══════════════════════════════ -->
+    <section>
+      <h2 class="section-title">Future Ideas <span class="section-tag">Post-V1 Brainstorm</span></h2>
+
+      <div class="grid-2">
+        <div>
+          <div class="sub-title">Weapon Ideas</div>
+          <table>
+            <tr>
+              <th>Weapon</th>
+              <th>Type</th>
+              <th>Evolution</th>
+            </tr>
+            <tr>
+              <td>Beam</td>
+              <td>BEAM</td>
+              <td>Prismatic Beam (multi-target)</td>
+            </tr>
+            <tr>
+              <td>Landmine</td>
+              <td>TRAP</td>
+              <td>Cluster Bomb</td>
+            </tr>
+            <tr>
+              <td>Boomerang</td>
+              <td>PROJECTILE</td>
+              <td>Glaive Storm</td>
+            </tr>
+            <tr>
+              <td>Summon</td>
+              <td>SUMMON</td>
+              <td>Legion (AI familiars)</td>
+            </tr>
+            <tr>
+              <td>Shockwave</td>
+              <td>AOE</td>
+              <td>Earthquake</td>
+            </tr>
+          </table>
+        </div>
+        <div>
+          <div class="sub-title">Passive Ideas</div>
+          <table>
+            <tr>
+              <th>Passive</th>
+              <th>Effect</th>
+              <th>Max</th>
+            </tr>
+            <tr>
+              <td>Crown</td>
+              <td>+10% XP per level</td>
+              <td>+50%</td>
+            </tr>
+            <tr>
+              <td>Armor</td>
+              <td>+20 Max HP per level</td>
+              <td>+100</td>
+            </tr>
+          </table>
+
+          <div class="sub-title" style="margin-top: 20px;">Enemy Ideas</div>
+          <ul class="small">
+            <li><strong>Swarmers:</strong> fast, low HP, packs of 8&ndash;10</li>
+            <li><strong>Tanks:</strong> slow, high HP, body block</li>
+            <li><strong>Ranged:</strong> projectile attacks (layer 5)</li>
+            <li><strong>Phasing:</strong> blink/teleport toward player</li>
+            <li><strong>Splitting:</strong> spawn children on death</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="sub-title" style="margin-top: 20px;">Boss Ideas (Every 5 min)</div>
+      <div class="grid-3">
+        <div class="kf-box" style="border-color: var(--red);">
+          <div class="kf-title">The Warden</div>
+          <div class="kf-text">Summons minion waves, shield phases</div>
+        </div>
+        <div class="kf-box" style="border-color: var(--cyan);">
+          <div class="kf-title">The Storm</div>
+          <div class="kf-text">Dash attacks, leaves damage trail</div>
+        </div>
+        <div class="kf-box" style="border-color: var(--orange);">
+          <div class="kf-title">The Hive</div>
+          <div class="kf-text">Spawns swarmers, grows larger</div>
+        </div>
+      </div>
+
+      <div class="sub-title" style="margin-top: 20px;">Character Select (Future)</div>
+      <table>
+        <tr>
+          <th>Character</th>
+          <th>Starting Weapon</th>
+          <th>Bonus</th>
+        </tr>
+        <tr>
+          <td>Reaper</td>
+          <td>Spectral Slash</td>
+          <td>+15% damage</td>
+        </tr>
+        <tr>
+          <td>Paladin</td>
+          <td>Holy Aura</td>
+          <td>+20% max HP</td>
+        </tr>
+        <tr>
+          <td>Stormcaller</td>
+          <td>Chain Lightning</td>
+          <td>+10% attack speed</td>
+        </tr>
+        <tr>
+          <td>Pyromancer</td>
+          <td>Flame Guard</td>
+          <td>+15% area</td>
+        </tr>
+        <tr>
+          <td>Druid</td>
+          <td>Toxic Nova</td>
+          <td>+12% AOE radius</td>
+        </tr>
+        <tr>
+          <td>Warlock</td>
+          <td>Arcane Missiles</td>
+          <td>+10% projectile count</td>
+        </tr>
+      </table>
+    </section>
+
+    <!-- ═══════════════════════════════ FILE MAP ═══════════════════════════════ -->
+    <section>
+      <h2 class="section-title">File Map <span class="section-tag">34 Scripts, 19 Scenes</span></h2>
+
+      <div class="grid-2">
+        <div>
+          <div class="sub-title">Core Scripts</div>
+          <table>
+            <tr>
+              <th>Path</th>
+              <th>Purpose</th>
+            </tr>
+            <tr>
+              <td>scripts/autoload/signal_bus.gd</td>
+              <td>10-signal event bus</td>
+            </tr>
+            <tr>
+              <td>scripts/autoload/game_manager.gd</td>
+              <td>State, HP, XP, inventories</td>
+            </tr>
+            <tr>
+              <td>scripts/autoload/pool_manager.gd</td>
+              <td>Object pooling (9 pools)</td>
+            </tr>
+            <tr>
+              <td>scripts/autoload/audio_manager.gd</td>
+              <td>SFX pooling + dedup</td>
+            </tr>
+            <tr>
+              <td>scripts/autoload/ui_theme.gd</td>
+              <td>Kenney-textured theme</td>
+            </tr>
+            <tr>
+              <td>scenes/game/game.gd</td>
+              <td>Main orchestrator</td>
+            </tr>
+            <tr>
+              <td>scenes/player/player.gd</td>
+              <td>CharacterBody2D movement</td>
+            </tr>
+            <tr>
+              <td>scenes/enemies/base_enemy.gd</td>
+              <td>Chase + contact damage</td>
+            </tr>
+            <tr>
+              <td>scenes/enemies/enemy_spawner.gd</td>
+              <td>Time-scaled spawning</td>
+            </tr>
+          </table>
+        </div>
+        <div>
+          <div class="sub-title">Weapons &amp; Data</div>
+          <table>
+            <tr>
+              <th>Path</th>
+              <th>Purpose</th>
+            </tr>
+            <tr>
+              <td>scenes/weapons/weapon_manager.gd</td>
+              <td>7-type dispatch</td>
+            </tr>
+            <tr>
+              <td>scenes/weapons/base_projectile.gd</td>
+              <td>Linear + pierce</td>
+            </tr>
+            <tr>
+              <td>scenes/weapons/aoe_effect.gd</td>
+              <td>AOE ring visual + GPUParticles2D burst</td>
+            </tr>
+            <tr>
+              <td>scenes/weapons/chain_effect.gd</td>
+              <td>Lightning bolt visual + GPUParticles2D impact</td>
+            </tr>
+            <tr>
+              <td>scenes/weapons/melee_effect.gd</td>
+              <td>Slash arc visual + GPUParticles2D sparks/dust</td>
+            </tr>
+            <tr>
+              <td>scenes/weapons/toxic_zone.gd</td>
+              <td>DOT zone visual + GPUParticles2D bubbles</td>
+            </tr>
+            <tr>
+              <td>scenes/weapons/homing_missile.gd</td>
+              <td>Homing + splash + GPUParticles2D trail</td>
+            </tr>
+            <tr>
+              <td>scenes/weapons/orbit_weapon.gd</td>
+              <td>Orbiter ring manager + GPUParticles2D trails</td>
+            </tr>
+            <tr>
+              <td>resources/weapons/weapons_db.gd</td>
+              <td>12 weapon definitions</td>
+            </tr>
+            <tr>
+              <td>resources/passives/passives_db.gd</td>
+              <td>8 passive definitions</td>
+            </tr>
+            <tr>
+              <td>resources/evolutions/evolution_db.gd</td>
+              <td>6 evolution rules</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="sub-title" style="margin-top: 20px;">UI Scripts</div>
+      <div class="grid-3">
+        <div class="arch-node">
+          <div class="arch-title">hud.gd</div>
+          <div class="arch-desc">HP/XP bars, timer, weapon/passive grid</div>
+        </div>
+        <div class="arch-node">
+          <div class="arch-title">level_up_panel.gd</div>
+          <div class="arch-desc">3-card selection, rerolls</div>
+        </div>
+        <div class="arch-node">
+          <div class="arch-title">pause_menu.gd</div>
+          <div class="arch-desc">ESC toggle, resume/settings/quit</div>
+        </div>
+        <div class="arch-node">
+          <div class="arch-title">game_over_panel.gd</div>
+          <div class="arch-desc">Stats, retry/menu buttons</div>
+        </div>
+        <div class="arch-node">
+          <div class="arch-title">settings_panel.gd</div>
+          <div class="arch-desc">Volume, resolution, god mode</div>
+        </div>
+        <div class="arch-node">
+          <div class="arch-title">damage_number.gd</div>
+          <div class="arch-desc">Pooled floating text</div>
+        </div>
+        <div class="arch-node">
+          <div class="arch-title">main_menu.gd</div>
+          <div class="arch-desc">Start/Settings/Quit</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <footer>
+    Bullet Heaven &mdash; Godot 4.5 GDScript &mdash; Design Document &mdash; Updated 2026-03-20
+  </footer>
+
+</body>
+
+</html>

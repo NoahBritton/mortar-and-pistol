@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mortar and Pistol — Design Reference</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+  <style>
+
+    /* ============================================
+       RESET & VARIABLES
+       ============================================ */
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:       #0a0810;
+      --surface:  #12101e;
+      --card:     #16132a;
+      --border:   rgba(196, 77, 255, 0.12);
+      --text:     #eeeef4;
+      --muted:    #6a6a8e;
+      --accent:   #c44dff;
+      --accent-2: #ff6b9d;
+      --accent-3: #4dccff;
+      --fire:     #ff4400;
+      --earth:    #8b6914;
+      --lightning:#44aaff;
+      --wind:     #aaeeff;
+      --poison:   #33dd33;
+      --void:     #9933ff;
+      --light:    #ffeeaa;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Outfit', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* ============================================
+       LAYOUT
+       ============================================ */
+
+    .page { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+    section { margin-bottom: 4rem; }
+
+    h1 {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 900; letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    h2 {
+      font-size: 1.6rem; font-weight: 800;
+      color: var(--accent); margin-bottom: 1rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h3 { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+
+    p       { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.8rem; }
+    strong  { color: var(--text); }
+
+    .subtitle { font-size: 1.1rem; color: var(--muted); font-weight: 300; margin-bottom: 2rem; }
+
+    .divider {
+      width: 60px; height: 2px; margin: 3rem auto;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      opacity: 0.3;
+    }
+
+    /* ============================================
+       CARDS
+       ============================================ */
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--card); border: 1px solid var(--border);
+      padding: 1.25rem; position: relative; overflow: hidden;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .card:hover {
+      border-color: rgba(196, 77, 255, 0.3);
+      box-shadow: 0 4px 30px rgba(196, 77, 255, 0.08);
+    }
+    .card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    }
+    .card h3 { font-size: 1rem; margin-bottom: 0.3rem; }
+    .card p  { font-size: 0.8rem; margin-bottom: 0; }
+    .card .tag {
+      display: inline-block; margin-top: 0.6rem;
+      font-size: 0.55rem; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 0.15rem 0.4rem;
+      border: 1px solid var(--border);
+    }
+
+    /* ============================================
+       HERO CARDS
+       ============================================ */
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .hero-card {
+      background: var(--card); border: 1px solid var(--border);
+      padding: 1.5rem; position: relative; overflow: hidden;
+    }
+    .hero-name { font-size: 1.2rem; font-weight: 800; margin-bottom: 0.2rem; }
+    .hero-class {
+      font-size: 0.7rem; color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.15em; margin-bottom: 0.6rem;
+    }
+    .hero-detail { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.3rem; }
+    .hero-detail strong { color: var(--text); font-weight: 600; }
+    .hero-flavor { font-size: 0.75rem; color: var(--muted); margin-top: 0.6rem; margin-bottom: 0; }
+
+    /* ============================================
+       ELEMENT CARDS
+       ============================================ */
+
+    .element-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+    .element-card {
+      background: var(--card); border: 1px solid var(--border);
+      padding: 1.25rem; position: relative; overflow: hidden;
+      transition: border-color 0.3s;
+    }
+    .element-card:hover { border-color: rgba(255,255,255,0.1); }
+    .element-name { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .element-stat { font-size: 0.75rem; color: var(--muted); margin-bottom: 0.15rem; }
+    .element-effect {
+      font-size: 0.78rem; color: var(--text); margin-top: 0.5rem;
+      padding-top: 0.5rem; border-top: 1px solid var(--border);
+    }
+
+    /* ============================================
+       WEAPON TABLE
+       ============================================ */
+
+    .table-wrap { overflow-x: auto; }
+    .weapon-table { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+    .weapon-table th {
+      text-align: left; padding: 0.6rem 0.8rem;
+      font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em;
+      color: var(--muted); border-bottom: 2px solid var(--border);
+    }
+    .weapon-table td {
+      padding: 0.6rem 0.8rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      color: var(--muted);
+    }
+    .weapon-table tr:hover td { background: rgba(196, 77, 255, 0.03); }
+    .weapon-name { color: var(--text); font-weight: 600; }
+    .weapon-color {
+      width: 8px; height: 8px; display: inline-block; margin-right: 0.4rem;
+      vertical-align: middle;
+    }
+
+    /* ============================================
+       WEAPON × ELEMENT MATRIX
+       ============================================ */
+
+    .matrix { width: 100%; border-collapse: collapse; font-size: 0.68rem; }
+    .matrix th {
+      padding: 0.5rem; text-align: center;
+      font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--muted); border-bottom: 2px solid var(--border);
+    }
+    .matrix th:first-child { text-align: left; }
+    .matrix td {
+      padding: 0.5rem; text-align: center;
+      border-bottom: 1px solid rgba(255,255,255,0.02);
+      color: var(--muted); transition: background 0.2s, color 0.2s;
+    }
+    .matrix td:first-child { text-align: left; color: var(--text); font-weight: 600; }
+    .matrix td.special {
+      color: var(--text); cursor: default;
+      background: rgba(196, 77, 255, 0.04);
+    }
+    .matrix td.special:hover { background: rgba(196, 77, 255, 0.1); }
+
+    /* ============================================
+       TRANSMUTATION CARDS
+       ============================================ */
+
+    .evo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1rem;
+    }
+    .evo-card { background: var(--card); border: 1px solid var(--border); padding: 1.25rem; }
+    .evo-formula {
+      font-size: 0.85rem; margin-bottom: 0.5rem;
+      display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;
+    }
+    .evo-base    { color: var(--muted); font-weight: 600; }
+    .evo-plus    { color: var(--accent); font-weight: 800; }
+    .evo-passive { color: var(--accent-3); font-weight: 600; }
+    .evo-arrow   { color: var(--muted); }
+    .evo-result  { font-weight: 800; }
+    .evo-stats   { font-size: 0.72rem; color: var(--muted); }
+
+    /* ============================================
+       PASSIVE CHIPS
+       ============================================ */
+
+    .passive-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.8rem;
+    }
+    .passive-chip {
+      background: var(--card); border: 1px solid var(--border);
+      padding: 0.8rem 1rem; display: flex; align-items: center; gap: 0.8rem;
+    }
+    .passive-dot  { width: 10px; height: 10px; flex-shrink: 0; }
+    .passive-info { flex: 1; }
+    .passive-name { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+    .passive-desc { font-size: 0.7rem; color: var(--muted); }
+    .passive-max  { font-size: 0.6rem; color: var(--accent); font-weight: 600; }
+
+    /* ============================================
+       ROADMAP
+       ============================================ */
+
+    .roadmap-list { list-style: none; padding: 0; }
+    .roadmap-item {
+      display: flex; gap: 1rem; align-items: flex-start;
+      padding: 0.8rem 0; border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .roadmap-status {
+      font-size: 0.55rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; padding: 0.15rem 0.5rem; white-space: nowrap; margin-top: 0.15rem;
+    }
+    .status-done    { background: rgba(51, 204, 51, 0.15); color: #33cc33; }
+    .status-partial { background: rgba(255, 171, 64, 0.15); color: #ffab40; }
+    .status-planned { background: rgba(196, 77, 255, 0.15); color: var(--accent); }
+    .status-future  { background: rgba(106, 106, 142, 0.1); color: var(--muted); }
+    .roadmap-text { flex: 1; }
+    .roadmap-name { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+    .roadmap-desc { font-size: 0.75rem; color: var(--muted); }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+
+    @media (max-width: 600px) {
+      .card-grid, .hero-grid, .element-grid, .evo-grid, .passive-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="page">
+
+    <!-- ====== HEADER ====== -->
+    <section>
+      <h1>Mortar and Pistol</h1>
+      <p class="subtitle">Medieval fantasy bullet heaven — magic-powered guns, alchemical weapons, elemental affinities.</p>
+      <p>A vampire-survivors-style bullet heaven where magic comes from <strong>guns</strong>, not wands. Every weapon is a purpose-built magical firearm — mortars loaded with potion shells, rifles etched with arcane formulas, pistols with wind vents along the barrels. Pick a hero, grab weapons, attune to an element, and transmute your arsenal into something devastating.</p>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ====== HEROES ====== -->
+    <section>
+      <h2>Heroes</h2>
+      <p>Each hero starts with a weapon, an elemental affinity, and a unique passive. All heroes can pick up any weapon during a run.</p>
+
+      <div class="hero-grid">
+        <div class="hero-card" style="border-top: 3px solid var(--lightning);">
+          <div class="hero-name" style="color: var(--lightning);">The Wizard</div>
+          <div class="hero-class">Mid-range precision</div>
+          <p class="hero-detail"><strong>Weapon:</strong> Bolt Rifle</p>
+          <p class="hero-detail"><strong>Element:</strong> Lightning</p>
+          <p class="hero-detail"><strong>Passive:</strong> +10% fire rate</p>
+          <p class="hero-flavor">Enchanted long-barrel rifle. Arcane formulas etched along the barrel focus magic into a single devastating bolt that punches through anything in its path.</p>
+        </div>
+
+        <div class="hero-card" style="border-top: 3px solid var(--poison);">
+          <div class="hero-name" style="color: var(--poison);">The Alchemist</div>
+          <div class="hero-class">AoE & debuffs</div>
+          <p class="hero-detail"><strong>Weapon:</strong> Scatter Flask</p>
+          <p class="hero-detail"><strong>Element:</strong> Poison</p>
+          <p class="hero-detail"><strong>Passive:</strong> +12% AoE radius</p>
+          <p class="hero-flavor">Modified blunderbuss that fires unstable flasks. On impact, the flask shatters into volatile shrapnel that sprays in all directions. Hisses, bubbles, smells of sulphur.</p>
+        </div>
+
+        <div class="hero-card" style="border-top: 3px solid var(--fire);">
+          <div class="hero-name" style="color: var(--fire);">The Bombardier</div>
+          <div class="hero-class">Heavy explosions</div>
+          <p class="hero-detail"><strong>Weapon:</strong> Powder Keg</p>
+          <p class="hero-detail"><strong>Element:</strong> Fire</p>
+          <p class="hero-detail"><strong>Passive:</strong> +15% damage</p>
+          <p class="hero-flavor">Massive iron-banded mortar that drops primed explosive kegs. The fuse burns down, then everything nearby goes up. Half the character's size.</p>
+        </div>
+
+        <div class="hero-card" style="border-top: 3px solid var(--wind);">
+          <div class="hero-name" style="color: var(--wind);">The Assassin</div>
+          <div class="hero-class">Speed & burst</div>
+          <p class="hero-detail"><strong>Weapon:</strong> Twin Barrels</p>
+          <p class="hero-detail"><strong>Element:</strong> Wind</p>
+          <p class="hero-detail"><strong>Passive:</strong> +15% move speed</p>
+          <p class="hero-flavor">Dual compact pistols with wind vents along the barrels. Fires both barrels in rapid succession — one-two punch that drops targets before they react.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ====== CHARACTER WEAPONS ====== -->
+    <section>
+      <h2>Character Weapons</h2>
+      <p>Each hero starts with a unique weapon. These are exclusive — they don't appear in the level-up pool for other heroes. They scale to Lv5 but do not transmute.</p>
+
+      <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+        <div class="card" style="border-top: 3px solid #44aaff;">
+          <h3 style="color:#44aaff;">Bolt Rifle</h3>
+          <p style="margin-bottom:0.4rem;"><strong>Wizard</strong> · PIERCING</p>
+          <p>Single fast bolt that pierces ALL enemies in a line. Long range, high damage, moderate rate. The precision sniper — one shot, one clean line of destruction.</p>
+          <p style="font-size:0.7rem; color:var(--accent);">20-40 dmg · 0.8-1.2/s · 3-7 pierce · 500px range</p>
+        </div>
+
+        <div class="card" style="border-top: 3px solid #33dd33;">
+          <h3 style="color:#33dd33;">Scatter Flask</h3>
+          <p style="margin-bottom:0.4rem;"><strong>Alchemist</strong> · BURST</p>
+          <p>Flask hits the nearest enemy, then shatters into 4-8 shrapnel projectiles spraying outward from impact. Short range, chaotic, satisfying.</p>
+          <p style="font-size:0.7rem; color:var(--accent);">10 flask + 4×shrapnel dmg · 0.7-1.0/s · 250px range</p>
+        </div>
+
+        <div class="card" style="border-top: 3px solid #ff4400;">
+          <h3 style="color:#ff4400;">Powder Keg</h3>
+          <p style="margin-bottom:0.4rem;"><strong>Bombardier</strong> · MINE</p>
+          <p>Drops an explosive barrel at YOUR position. 0.8s fuse, then massive detonation. Requires positioning — drop it in a crowd, then get out. High risk, high reward.</p>
+          <p style="font-size:0.7rem; color:var(--accent);">25-60 dmg · 0.5-0.7/s · 90px radius · 0.8s fuse</p>
+        </div>
+
+        <div class="card" style="border-top: 3px solid #aaeeff;">
+          <h3 style="color:#aaeeff;">Twin Barrels</h3>
+          <p style="margin-bottom:0.4rem;"><strong>Assassin</strong> · BURST-FIRE</p>
+          <p>Fires 2 rapid shots (0.1s apart) at the nearest enemy. Fast projectiles, quick cooldown. The dual-pistol double-tap — reliable, clean, satisfying.</p>
+          <p style="font-size:0.7rem; color:var(--accent);">10-22 ×2 dmg · 1.2-1.8 bursts/s · 300px range</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ====== POOL WEAPONS ====== -->
+    <section>
+      <h2>Pool Weapons</h2>
+      <p>Available to all heroes through the level-up pool. Distinct from character-exclusive starters. All are guns or gun-adjacent tools.</p>
+
+      <div class="table-wrap">
+        <table class="weapon-table">
+          <thead><tr><th>Weapon</th><th>Type</th><th>Damage</th><th>Rate</th><th>Mechanic</th></tr></thead>
+          <tbody>
+            <tr><td><span class="weapon-color" style="background:#c0c0c0;"></span><span class="weapon-name">Bayonet Rush</span></td><td>MELEE</td><td>14-30</td><td>1.2-2.0/s</td><td>Magic-blade from barrel. 120° cone sweep.</td></tr>
+            <tr><td><span class="weapon-color" style="background:#ffd94d;"></span><span class="weapon-name">Mortar Burst</span></td><td>AOE</td><td>8-20</td><td>0.5-0.7/s</td><td>Potion shell detonates around player. 80px radius.</td></tr>
+            <tr><td><span class="weapon-color" style="background:#6699ff;"></span><span class="weapon-name">Arc Discharge</span></td><td>CHAIN</td><td>12-28</td><td>0.8-1.2/s</td><td>Lightning rounds arc between enemies. 2-6 chains.</td></tr>
+            <tr><td><span class="weapon-color" style="background:#ff6619;"></span><span class="weapon-name">Ember Shells</span></td><td>ORBIT</td><td>7-15</td><td>—</td><td>Fire-enchanted rounds orbit at 180°/s. 2-6 orbiters.</td></tr>
+            <tr><td><span class="weapon-color" style="background:#66ff66;"></span><span class="weapon-name">Blight Flask</span></td><td>DOT</td><td>5-13/tick</td><td>0.4-0.6/s</td><td>Poison vial zone. Ticks every 0.5s for 3-5s.</td></tr>
+            <tr><td><span class="weapon-color" style="background:#cc66ff;"></span><span class="weapon-name">Seeker Rounds</span></td><td>BARRAGE</td><td>15-27</td><td>0.4-0.6/s</td><td>Magic-guided homing bullets. 2-4 per volley.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size: 0.7rem; margin-top: 0.5rem;">All stats are L1 → L5 ranges.</p>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ====== ELEMENTS ====== -->
+    <section>
+      <h2>Elemental Affinities</h2>
+      <p>Appear in the level-up pool. One active at a time — picking a new element replaces the old one. Modifies ALL equipped weapons.</p>
+
+      <div class="element-grid">
+        <div class="element-card" style="border-top: 3px solid var(--fire);"><div class="element-name" style="color:var(--fire);">Fire</div><div class="element-stat">Damage: <strong style="color:var(--accent-2);">-15%</strong> · Fire Rate: <strong style="color:var(--poison);">+25%</strong></div><div class="element-effect">Attacks apply <strong>burn DoT</strong> — 3 dmg/s for 3s</div></div>
+        <div class="element-card" style="border-top: 3px solid var(--earth);"><div class="element-name" style="color:var(--earth);">Earth</div><div class="element-stat">Damage: <strong style="color:var(--poison);">+25%</strong> · Fire Rate: <strong style="color:var(--accent-2);">-20%</strong></div><div class="element-effect">Projectiles <strong>+30% larger</strong>, AoE <strong>+20% radius</strong></div></div>
+        <div class="element-card" style="border-top: 3px solid var(--lightning);"><div class="element-name" style="color:var(--lightning);">Lightning</div><div class="element-stat">Damage: <strong style="color:var(--accent-2);">-10%</strong> · Fire Rate: <strong style="color:var(--poison);">+15%</strong></div><div class="element-effect">Pierce <strong>+2 targets</strong>, chain hop <strong>+40px</strong></div></div>
+        <div class="element-card" style="border-top: 3px solid var(--wind);"><div class="element-name" style="color:var(--wind);">Wind</div><div class="element-stat">Damage: <strong style="color:var(--accent-2);">-25%</strong> · Fire Rate: <strong style="color:var(--poison);">+40%</strong></div><div class="element-effect">Move speed <strong>+20%</strong>. Hits apply <strong>Suffocate</strong> — halves enemy healing</div></div>
+        <div class="element-card" style="border-top: 3px solid var(--poison);"><div class="element-name" style="color:var(--poison);">Poison</div><div class="element-stat">Damage: <strong style="color:var(--accent-2);">-20%</strong></div><div class="element-effect">All attacks apply <strong>poison DoT</strong> — 5 dmg/s for 4s, <strong>stacks</strong></div></div>
+        <div class="element-card" style="border-top: 3px solid var(--void);"><div class="element-name" style="color:var(--void);">Void</div><div class="element-stat">Damage: <strong style="color:var(--accent-2);">-30%</strong> · Fire Rate: <strong style="color:var(--accent-2);">-15%</strong></div><div class="element-effect">Damage <strong>reduces enemy max HP</strong> instead of current. Returns after 5s without Void damage</div></div>
+        <div class="element-card" style="border-top: 3px solid var(--light);"><div class="element-name" style="color:var(--light);">Light</div><div class="element-stat">Damage: <strong style="color:var(--accent-2);">-10%</strong></div><div class="element-effect">Projectiles move <strong>2x faster</strong>, reload speed <strong>+30%</strong></div></div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ====== MATRIX ====== -->
+    <section>
+      <h2>Weapon × Element Interactions</h2>
+      <p>Highlighted cells have unique interactions beyond base stat modifiers (stretch goals for R3).</p>
+
+      <div class="table-wrap">
+        <table class="matrix">
+          <thead><tr><th></th><th style="color:var(--fire);">Fire</th><th style="color:var(--earth);">Earth</th><th style="color:var(--lightning);">Ltn.</th><th style="color:var(--wind);">Wind</th><th style="color:var(--poison);">Poison</th><th style="color:var(--void);">Void</th><th style="color:var(--light);">Light</th></tr></thead>
+          <tbody>
+            <tr><td style="color:#44aaff;">Bolt Rifle</td><td>—</td><td>—</td><td class="special" title="Bolt forks into 2 secondary bolts on last enemy">fork</td><td>—</td><td>—</td><td>—</td><td class="special" title="Near-instant speed, bright damage trail">trail</td></tr>
+            <tr><td style="color:#33dd33;">Scatter Flask</td><td>—</td><td class="special" title="Flask creates slow zone instead of bursting">slow zone</td><td>—</td><td>—</td><td class="special" title="Shrapnel leaves tiny DOT puddles">DOT shrapnel</td><td>—</td><td>—</td></tr>
+            <tr><td style="color:#ff4400;">Powder Keg</td><td class="special" title="Leaves burning ground for 2s after blast">fire ground</td><td>—</td><td>—</td><td>—</td><td>—</td><td class="special" title="Vacuum pull before detonation">vacuum</td><td>—</td></tr>
+            <tr><td style="color:#aaeeff;">Twin Barrels</td><td>—</td><td>—</td><td class="special" title="Shots chain to 1 nearby enemy after hit">chain shot</td><td class="special" title="Triple-tap instead of double-tap">triple-tap</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr><td>Bayonet</td><td class="special" title="Burning trail on sweep">burn trail</td><td>—</td><td>—</td><td class="special" title="Pushes enemies back">knockback</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr><td>Mortar</td><td>—</td><td class="special" title="Massive blast radius">huge radius</td><td>—</td><td>—</td><td>—</td><td class="special" title="Vacuum pull before detonation">vacuum</td><td>—</td></tr>
+            <tr><td>Arc</td><td>—</td><td>—</td><td class="special" title="Double chain count">2x chains</td><td>—</td><td>—</td><td>—</td><td class="special" title="Instant arc, extended range">instant</td></tr>
+            <tr><td>Ember</td><td class="special" title="Orbiters leave fire trails">fire trails</td><td>—</td><td>—</td><td>—</td><td class="special" title="Poison clouds in orbiter wake">poison wake</td><td>—</td><td>—</td></tr>
+            <tr><td>Blight</td><td>—</td><td class="special" title="50% larger zone + slow">slow zone</td><td>—</td><td>—</td><td class="special" title="Double tick rate, 2x linger">2x poison</td><td>—</td><td>—</td></tr>
+            <tr><td>Seeker</td><td>—</td><td>—</td><td class="special" title="Arcs to 2 extra targets after impact">chain splash</td><td>—</td><td>—</td><td class="special" title="On kill, void singularity pulls enemies">singularity</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ====== TRANSMUTATIONS ====== -->
+    <section>
+      <h2>Transmutations</h2>
+      <p>Weapon at Lv5 + paired passive = auto-transmute into a more powerful form.</p>
+
+      <div class="evo-grid">
+        <div class="evo-card"><div class="evo-formula"><span class="evo-base">Bayonet Rush</span><span class="evo-plus">+</span><span class="evo-passive">Gunpowder</span><span class="evo-arrow">→</span><span class="evo-result" style="color:#e64dff;">Reaper's Bayonet</span></div><div class="evo-stats">360° scythe sweep, 120px reach, 40 dmg, 2.5/s</div></div>
+        <div class="evo-card"><div class="evo-formula"><span class="evo-base">Mortar Burst</span><span class="evo-plus">+</span><span class="evo-passive">Clockwork</span><span class="evo-arrow">→</span><span class="evo-result" style="color:#ffff99;">Carpet Bomber</span></div><div class="evo-stats">150px radius, 30 dmg, 1.5/s, multiple detonation points</div></div>
+        <div class="evo-card"><div class="evo-formula"><span class="evo-base">Arc Discharge</span><span class="evo-plus">+</span><span class="evo-passive">Birdshot</span><span class="evo-arrow">→</span><span class="evo-result" style="color:#cce6ff;">Storm Conduit</span></div><div class="evo-stats">8 chains, 180px hop, 25 dmg, 1.2/s</div></div>
+        <div class="evo-card"><div class="evo-formula"><span class="evo-base">Ember Shells</span><span class="evo-plus">+</span><span class="evo-passive">Quicksilver</span><span class="evo-arrow">→</span><span class="evo-result" style="color:#ff3300;">Inferno Ring</span></div><div class="evo-stats">6 orbiters, 90px radius, 18 dmg, 270°/s</div></div>
+        <div class="evo-card"><div class="evo-formula"><span class="evo-base">Blight Flask</span><span class="evo-plus">+</span><span class="evo-passive">Focusing Lens</span><span class="evo-arrow">→</span><span class="evo-result" style="color:#00e676;">Plague Barrage</span></div><div class="evo-stats">120px zone, 12/tick, 6s, ticks/0.3s, toxic trail</div></div>
+        <div class="evo-card"><div class="evo-formula"><span class="evo-base">Seeker Rounds</span><span class="evo-plus">+</span><span class="evo-passive">Extra Powder</span><span class="evo-arrow">→</span><span class="evo-result" style="color:#ff4081;">Bullet Storm</span></div><div class="evo-stats">6 seekers, 60px splash, 35 dmg, screen-wide targeting</div></div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ====== PASSIVES ====== -->
+    <section>
+      <h2>Passives</h2>
+      <p>Gun modifications and alchemical supplies. 6 slots max, each upgrades to Lv5.</p>
+
+      <div class="passive-grid">
+        <div class="passive-chip"><div class="passive-dot" style="background:#33cc33;"></div><div class="passive-info"><div class="passive-name">Gunpowder</div><div class="passive-desc">+10% damage/level</div><div class="passive-max">Max: +50%</div></div></div>
+        <div class="passive-chip"><div class="passive-dot" style="background:#996633;"></div><div class="passive-info"><div class="passive-name">Clockwork</div><div class="passive-desc">+8% attack speed/level</div><div class="passive-max">Max: +40%</div></div></div>
+        <div class="passive-chip"><div class="passive-dot" style="background:#cc9933;"></div><div class="passive-info"><div class="passive-name">Quicksilver</div><div class="passive-desc">+10% weapon speed/level</div><div class="passive-max">Max: +50%</div></div></div>
+        <div class="passive-chip"><div class="passive-dot" style="background:#66ccff;"></div><div class="passive-info"><div class="passive-name">Birdshot</div><div class="passive-desc">+1 pierce/chain per level</div><div class="passive-max">Max: +5</div></div></div>
+        <div class="passive-chip"><div class="passive-dot" style="background:#b3e6ff;"></div><div class="passive-info"><div class="passive-name">Wind Vents</div><div class="passive-desc">+8% move speed/level</div><div class="passive-max">Max: +40%</div></div></div>
+        <div class="passive-chip"><div class="passive-dot" style="background:#8033cc;"></div><div class="passive-info"><div class="passive-name">Lodestone</div><div class="passive-desc">+15% pickup range/level</div><div class="passive-max">Max: +75%</div></div></div>
+        <div class="passive-chip"><div class="passive-dot" style="background:#ffab40;"></div><div class="passive-info"><div class="passive-name">Focusing Lens</div><div class="passive-desc">+8% AoE/orbit radius/level</div><div class="passive-max">Max: +40%</div></div></div>
+        <div class="passive-chip"><div class="passive-dot" style="background:#7cb342;"></div><div class="passive-info"><div class="passive-name">Extra Powder</div><div class="passive-desc">+1 proj/orbiter/missile per level</div><div class="passive-max">Max: +5</div></div></div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ====== ENEMIES ====== -->
+    <section>
+      <h2>Enemy Types (Planned)</h2>
+      <p>Creatures corrupted by raw magic runoff — not soldiers.</p>
+
+      <div class="card-grid">
+        <div class="card"><h3>Husks</h3><p>Shambling former creatures warped by wild magic.</p><span class="tag" style="color:var(--muted);">Current base</span></div>
+        <div class="card"><h3>Ironclads</h3><p>Slow, alchemically hardened shells. High HP.</p><span class="tag" style="color:var(--earth);">Tank</span></div>
+        <div class="card"><h3>Wisps</h3><p>Fast, fragile magic fragments. Swarms of 8-10.</p><span class="tag" style="color:var(--wind);">Swarmer</span></div>
+        <div class="card"><h3>Hexborn</h3><p>Ranged. Shoot bolts of unstable magic.</p><span class="tag" style="color:var(--void);">Ranged</span></div>
+        <div class="card"><h3>Splitters</h3><p>Burst into 2-3 Wisps on death.</p><span class="tag" style="color:var(--poison);">Splitting</span></div>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <!-- ====== ROADMAP ====== -->
+    <section>
+      <h2>Roadmap</h2>
+      <ul class="roadmap-list">
+        <li class="roadmap-item"><span class="roadmap-status status-done">Done</span><div class="roadmap-text"><div class="roadmap-name">A1-A3a: Core + Weapons</div><div class="roadmap-desc">Movement, auto-weapons, spawning, XP/leveling, 6 weapons, 8 passives, 6 evolutions, 17-bug audit</div></div></li>
+        <li class="roadmap-item"><span class="roadmap-status status-partial">Partial</span><div class="roadmap-text"><div class="roadmap-name">A3b: UI + VFX</div><div class="roadmap-desc">Kenney UI (~40%), base weapon VFX done (6/6 GPUParticles2D). Entity sprites still needed.</div></div></li>
+        <li class="roadmap-item"><span class="roadmap-status status-planned">Planned</span><div class="roadmap-text"><div class="roadmap-name">R1: Re-Theme</div><div class="roadmap-desc">Rename weapons/passives/evolutions to M&P theming. Pure text swap.</div></div></li>
+        <li class="roadmap-item"><span class="roadmap-status status-planned">Planned</span><div class="roadmap-text"><div class="roadmap-name">R2: Character Select</div><div class="roadmap-desc">4 heroes with starting weapon + passive. Character select screen.</div></div></li>
+        <li class="roadmap-item"><span class="roadmap-status status-planned">Planned</span><div class="roadmap-text"><div class="roadmap-name">R3: Elemental Affinities</div><div class="roadmap-desc">7 elements as weapon modifiers. Stretch: unique weapon×element interactions.</div></div></li>
+        <li class="roadmap-item"><span class="roadmap-status status-planned">Planned</span><div class="roadmap-text"><div class="roadmap-name">A3c-A4: Content + Balance</div><div class="roadmap-desc">Enemy variants, bosses, DPS balance, sound/music.</div></div></li>
+        <li class="roadmap-item"><span class="roadmap-status status-future">Future</span><div class="roadmap-text"><div class="roadmap-name">B1-B2: Art & Meta</div><div class="roadmap-desc">Pixel art, entity sprites, permanent upgrades, achievements, maps.</div></div></li>
+      </ul>
+    </section>
+
+    <div class="divider"></div>
+
+    <section style="text-align:center; margin-bottom:0;">
+      <p style="font-size: 0.7rem; opacity: 0.3;">Mortar and Pistol — Design Reference — axogames.dev</p>
+    </section>
+
+  </div>
+</body>
+</html>

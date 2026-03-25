@@ -1,0 +1,38 @@
+[gd_scene load_steps=9 format=3 uid="uid://bgame1"]
+
+[ext_resource type="Script" uid="uid://bw2i1oabd4m84" path="res://scenes/game/game.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://bplayer1" path="res://scenes/player/player.tscn" id="2"]
+[ext_resource type="Script" uid="uid://bckw8m0d18w4q" path="res://scenes/enemies/enemy_spawner.gd" id="3"]
+[ext_resource type="PackedScene" uid="uid://bhud1" path="res://scenes/ui/hud.tscn" id="4"]
+[ext_resource type="PackedScene" uid="uid://blvlup1" path="res://scenes/ui/level_up_panel.tscn" id="5"]
+[ext_resource type="PackedScene" uid="uid://bgameover1" path="res://scenes/ui/game_over_panel.tscn" id="6"]
+[ext_resource type="Script" uid="uid://bgtwud7paxsuv" path="res://scenes/game/checkered_floor.gd" id="7"]
+[ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="8"]
+
+[node name="Game" type="Node2D"]
+script = ExtResource("1")
+
+[node name="CheckeredFloor" type="Node2D" parent="."]
+z_index = -10
+script = ExtResource("7")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+
+[node name="Player" parent="." instance=ExtResource("2")]
+
+[node name="EnemySpawner" type="Node" parent="."]
+script = ExtResource("3")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="HUD" parent="CanvasLayer" instance=ExtResource("4")]
+layout_mode = 3
+
+[node name="LevelUpPanel" parent="CanvasLayer" instance=ExtResource("5")]
+layout_mode = 3
+
+[node name="GameOverPanel" parent="CanvasLayer" instance=ExtResource("6")]
+layout_mode = 3
+
+[node name="PauseMenu" parent="CanvasLayer" instance=ExtResource("8")]
+layout_mode = 3

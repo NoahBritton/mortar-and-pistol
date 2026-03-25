@@ -1,0 +1,28 @@
+# Godot 4 generated files
+.godot/
+
+# Godot import cache
+*.import
+*.translation
+
+# Mono/.NET (if ever used)
+.mono/
+data_*/
+mono_crash.*.json
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE / local tool config
+.vscode/
+.mcp.json
+*.swp
+*.swo
+*~
+
+# Export
+export/
+*.pck
+*.zip

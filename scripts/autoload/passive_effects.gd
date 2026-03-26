@@ -134,7 +134,7 @@ func _on_damage_dealt(_pos: Vector2, _amount: int) -> void:
 
 # ── Ricochet: bounce projectile to nearby enemy ──
 
-func try_ricochet(hit_position: Vector2, hit_enemy: Node2D, damage: int, color: Color) -> void:
+func try_ricochet(hit_position: Vector2, hit_enemy: Node2D, damage: int, _color: Color) -> void:
 	var bounces = get_ricochet_bounces()
 	if bounces <= 0:
 		return
@@ -200,7 +200,7 @@ func try_echo_projectile(player_pos: Vector2, direction: Vector2, data: WeaponDa
 		proj.reset(player_pos, direction, data, level)
 		proj.damage = int(proj.damage * echo_mult)
 		proj._is_echo = true
-		proj._is_fragment = true  # Echoes cannot proc on-hit passives
+		proj._is_fragment = true # Echoes cannot proc on-hit passives
 		proj.color_rect.color = proj.color_rect.color * Color(1.0, 1.0, 1.0, 0.5)
 	)
 

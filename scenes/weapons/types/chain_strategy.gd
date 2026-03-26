@@ -38,12 +38,12 @@ func fire(data: WeaponData, level: int) -> void:
 const _STORM_FORK_DAMAGE_MULT: float = 0.4
 const _STORM_FORK_RANGE: float = 100.0
 const _STORM_MAX_FORKS_PER_NODE: int = 1
-const _STORM_OVERLOAD_THRESHOLD: int = 3  # Overclock stacks needed for overload mode
+const _STORM_OVERLOAD_THRESHOLD: int = 3 # Overclock stacks needed for overload mode
 const _STORM_OVERLOAD_BONUS_CHAINS: int = 3
 const _STORM_OVERLOAD_PULSE_RADIUS: float = 120.0
 const _STORM_OVERLOAD_PULSE_DAMAGE_MULT: float = 0.25
 
-func _fire_storm_engine(data: WeaponData, level: int, target: Node2D,
+func _fire_storm_engine(data: WeaponData, _level: int, target: Node2D,
 		damage: int, chain_count: int, chain_range: float) -> void:
 	var player_pos = get_player_pos()
 	var is_overloaded = PassiveEffects.overclock_stacks >= _STORM_OVERLOAD_THRESHOLD
@@ -54,7 +54,7 @@ func _fire_storm_engine(data: WeaponData, level: int, target: Node2D,
 
 	var hit_positions: Array[Vector2] = []
 	var hit_enemies: Array = []
-	var fork_targets: Array[Vector2] = []  # Positions where forks emanate from
+	var fork_targets: Array[Vector2] = [] # Positions where forks emanate from
 
 	var current = target
 	for i in chain_count:

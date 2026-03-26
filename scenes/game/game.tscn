@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://bgame1"]
+[gd_scene load_steps=10 format=3 uid="uid://bgame1"]
 
 [ext_resource type="Script" uid="uid://bw2i1oabd4m84" path="res://scenes/game/game.gd" id="1"]
 [ext_resource type="PackedScene" uid="uid://bplayer1" path="res://scenes/player/player.tscn" id="2"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://bgameover1" path="res://scenes/ui/game_over_panel.tscn" id="6"]
 [ext_resource type="Script" uid="uid://bgtwud7paxsuv" path="res://scenes/game/checkered_floor.gd" id="7"]
 [ext_resource type="PackedScene" path="res://scenes/ui/pause_menu.tscn" id="8"]
+[ext_resource type="Script" uid="uid://chws780hr24oo" path="res://scenes/ui/evolution_popup.gd" id="9"]
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1")
@@ -40,7 +41,12 @@ layout_mode = 3
 [node name="EvolutionPopup" type="Control" parent="CanvasLayer"]
 process_mode = 3
 layout_mode = 3
-anchors_preset = 0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("9")
 
 [node name="Panel" type="PanelContainer" parent="CanvasLayer/EvolutionPopup"]
 layout_mode = 0

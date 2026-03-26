@@ -2,59 +2,119 @@
 
 ## Purpose
 
-This document describes M&P's current and planned combat upgrade system, formatted to mirror the Survivor.io Core System Design reference so you can directly compare the two. Each section includes an **audit** noting what exists, what's planned, and what needs to be rewritten or dropped to align with the survivor.io-inspired direction.
+Define the target combat build system for Mortar & Pistol. This document describes the intended run structure, upgrade model, passive philosophy, evolution rules, and implementation priorities for the next major systems pass.
+
+This is the specification for the system the game should become. Current-state audits and gap analysis are included where they inform the path forward, but the primary function of this document is to specify what to build.
 
 ---
 
-## 1. System Model — Where We Are vs Where We're Going
+## 1. Product Goal
 
-### Current Implementation (What's In the Code)
+Mortar & Pistol should feel like a game where the player **authors a build during the run**, not a game where the player simply upgrades damage output over time.
+
+The target experience is:
+
+- a strong starter identity through an exclusive character weapon,
+- meaningful build expansion through secondary weapons,
+- real planning tension through passive selection,
+- and memorable power spikes through weapon evolutions.
+
+The game already has working slot infrastructure, functioning level-up UI, strong character weapons, and solid technical foundations. It does not yet produce enough mid-run planning or late-run transformation because passives are absent from the draft pool and evolutions are effectively inactive.
+
+---
+
+## 2. Player Experience Goals
+
+The system must create four feelings over the course of a run:
+
+### 2.1 Early uncertainty
+The player is improvising from incomplete information and trying to stabilize.
+
+### 2.2 Mid-run intention
+The player begins making choices that point toward a future build rather than only immediate survival.
+
+### 2.3 Evolution payoff
+The player reaches a threshold where preparation turns into a noticeable transformation.
+
+### 2.4 Late-run mastery
+The player feels that the build has become coherent, expressive, and stronger in a way that reflects previous choices.
+
+**Current state:** The game delivers 2.1 (which weapons will I be offered?) but fails at 2.2 through 2.4. No passives means no planning. No active evolutions means no power spike moments. The build doesn't change enough to feel like mastery.
+
+---
+
+## 3. System Pillars
+
+### 3.1 Starter identity matters
+Each character begins with a distinctive weapon that defines early play feel and remains relevant throughout the run.
+
+### 3.2 Passives are full build pieces
+Passives are not filler. They must provide immediate gameplay value, visible impact, and evolution relevance.
+
+### 3.3 Slot pressure creates build identity
+Because active and passive slots are limited, every pick closes some doors while opening others.
+
+### 3.4 Evolutions are earned spikes
+An evolution should feel like a milestone, not a routine stat bump.
+
+### 3.5 Build paths should be understandable
+Players should be able to recognize how their choices are shaping the run without needing external documentation.
+
+---
+
+## 4. System Model
+
+### 4.1 Current Implementation
 
 ```
 Character Weapon (1)          Pool Weapons (6, all archived)
-        │                              │
+        |                              |
     Level 1-5                     Level 1-5
     (via level-up)               (via level-up, if unarchived)
-        │                              │
-    [no branching]              Max Lv + Passive = Transmutation
+        |                              |
+    [no evolution]              Max Lv + Passive = Transmutation
 ```
 
-- 4 character weapons (Bolt Rifle, Scatter Flask, Powder Keg, Twin Barrels)
-- 6 pool weapons (all soft-archived — exist in code but hidden from level-up)
-- 8 passives (removed from level-up pool, pending rework)
-- 6 transmutation recipes (pool weapon + passive = evolved weapon)
-- Level-up offers weapon upgrades only (passives stripped out)
+- 4 character weapons (Bolt Rifle, Scatter Flask, Powder Keg, Twin Barrels) — implemented
+- 6 pool weapons (all soft-archived, hidden from level-up) — 4 being replaced
+- 8 passives (removed from level-up pool) — all being redesigned
+- 6 transmutation recipes (1:1 weapon+passive pairings) — frozen
+- Level-up offers weapon upgrades only
 
-### Target Model (Survivor.io-Inspired)
+### 4.2 Target Model
 
 ```
 6 Active Skill Slots                    6 Passive Skill Slots
-┌─────────────────────┐                ┌─────────────────────┐
-│ Character Weapon    │                │ Passive A           │
-│ Pool Weapon 2      │                │ Passive B           │
-│ Pool Weapon 3      │                │ Passive C           │
-│ Pool Weapon 4      │                │ Passive D           │
-│ Pool Weapon 5      │                │ Passive E           │
-│ Pool Weapon 6      │                │ Passive F           │
-└────────┬────────────┘                └────────┬────────────┘
-         │                                      │
-         └──────────────┬───────────────────────┘
-                        │
++---------------------+                +---------------------+
+| Character Weapon    |                | Passive A           |
+| Pool Weapon 2      |                | Passive B           |
+| Pool Weapon 3      |                | Passive C           |
+| Pool Weapon 4      |                | Passive D           |
+| Pool Weapon 5      |                | Passive E           |
+| Pool Weapon 6      |                | Passive F           |
++--------+------------+                +--------+------------+
+         |                                      |
+         +------------------+-------------------+
+                            |
               Active (Max Lv) + Paired Passive = Evolution
-              (Multiple passives can pair → player CHOOSES evo)
+              (Multiple passives can pair -> player CHOOSES evo)
 ```
 
-**Key differences from current:**
-- Passives return to the level-up pool as full citizens, not afterthoughts
-- Each passive has standalone value AND serves as an evolution key
-- One weapon can have 2-3 possible evolutions depending on which passive is paired
-- Player choosing which evo when multiple passives qualify = the big decision moment
+**Core rules:**
+
+- **6 active slots** + **6 passive slots**
+- **1 locked starter weapon** (character weapon, slot 1)
+- **5 additional active slots** filled during the run
+- Passives drafted from the same level-up ecosystem as weapons
+- Weapons and passives upgraded by duplicates
+- Max-level weapon + qualifying passive = evolution
+- Some weapons support multiple passive pairings and therefore multiple evolutions
 
 ---
 
-## 2. Active Skills (Weapons)
+## 5. Active Weapons
 
-### 2.1 Character Weapons — Starter Actives
+### 5.1 Character Weapons — Starter Actives
 
 Each hero begins with an exclusive weapon that occupies Active Slot 1 and cannot be replaced.
 
@@ -63,30 +123,26 @@ Each hero begins with an exclusive weapon that occupies Active Slot 1 and cannot
 | Wizard | Bolt Rifle | BEAM | ~20 | Hitscan line through enemies. Piercing, long range, clean. |
 | Alchemist | Scatter Flask | BURST | ~14 | Lobbed flask shatters into shrapnel cone. Short range, high spread. |
 | Bombardier | Powder Keg | MINE | ~25 | Drops explosive barrel at feet. Fuse timer, AoE blast, screen shake. |
-| Assassin | Twin Barrels | BURST_FIRE | ~10×2 | Two rapid shots in quick succession. Fast, aggressive, mobile. |
+| Assassin | Twin Barrels | BURST_FIRE | ~10x2 | Two rapid shots in quick succession. Fast, aggressive, mobile. |
 
-**Audit:** All 4 character weapons are **fully implemented** with unique VFX, strategy scripts, and pool-managed effects. These are solid and stay.
+**Status:** All 4 fully implemented with unique VFX, strategy scripts, and pool-managed effects. These are solid and stay.
 
-**What changes under the new model:** Character weapons now follow the same evolution rules as pool weapons. Max level + paired passive = evolution. This means we need to design evolution paths for each character weapon.
+**Required change:** Character weapons must integrate into the shared evolution model (max level + paired passive = evolution). Each needs 2+ evolution branches.
 
-**What needs to be built:**
-- [ ] 2-3 evolution paths per character weapon
-- [ ] Passive pairings for each path
+### 5.2 Pool Weapons — Secondary Actives
 
-### 2.2 Pool Weapons — Secondary Actives
+Pool weapons fill Active Slots 2-6 and appear in the level-up pool during a run. The pool weapon roster should support complementary combat fantasies rather than overlap with starter identities.
 
-Pool weapons fill Active Slots 2-6. They appear in the level-up pool during a run.
-
-#### Keeping (2 weapons)
+#### Keeping
 
 | Weapon | Type | Identity | Why Keep |
 |---|---|---|---|
 | Arc Discharge | CHAIN | Lightning arcs between enemies. | Unique chain mechanic, flashy, scales well. |
 | Seeker Rounds | BARRAGE | Homing missiles track random enemies. | Homing is a distinct category, satisfying auto-aim fantasy. |
 
-**Audit:** Both exist in code, are **soft-archived** (hidden from pool). Need to be un-archived and their transmutation recipes updated for the new evolution system.
+Both exist in code (soft-archived). Need to be un-archived and given new evolution routes.
 
-#### Dropping (4 weapons)
+#### Dropping
 
 | Weapon | Type | Why Drop |
 |---|---|---|
@@ -95,30 +151,30 @@ Pool weapons fill Active Slots 2-6. They appear in the level-up pool during a ru
 | Ember Shells | ORBIT | Orbiting fireballs. Functional but visually boring, no interesting mechanic. |
 | Blight Flask | DOT | Poison zone. Too similar to Scatter Flask's throwing identity. |
 
-#### Replacing With (4 new weapons — workshop-decided, specs in progress)
+#### Replacing With
 
 | Weapon | Type | Identity | Status |
 |---|---|---|---|
-| Gravity Lash | WHIP | Wide arc knockback. Pushes enemies away, enemies collide with each other for bonus damage. Defensive spacing tool. | **NEEDS FULL SPEC** |
-| Sawblade Launcher | ARC | Arcing throw + return boomerang. Thrown blade arcs out and comes back, hitting on both trips. | **NEEDS FULL SPEC** |
-| Magma Geyser | ERUPTION | Brick-style weapon (survivor.io-inspired). Specifics TBD — user pivoted from mouse-aim to a different reference. | **NEEDS FULL SPEC + CREATIVE DIRECTION** |
-| Phantom Sentry | DRONE | Floaty drone that auto-fires (survivor.io-style). Changed from stationary turret to mobile companion. | **NEEDS FULL SPEC** |
+| Gravity Lash | WHIP | Wide arc knockback. Pushes enemies away, collision damage between enemies. | Needs full spec |
+| Sawblade Launcher | ARC | Arcing throw + return boomerang. Hits on both trips. | Needs full spec |
+| Magma Geyser | ERUPTION | Brick-style weapon (survivor.io-inspired). Role TBD — area denial, vertical burst, or eruption control. | Needs spec + creative direction |
+| Phantom Sentry | DRONE | Floaty drone that auto-fires (survivor.io-style mobile companion). | Needs full spec |
 
-**What needs to be built:**
-- [ ] Full weapon specs for all 4 replacements (damage, fire rate, scaling, behavior)
-- [ ] WeaponData entries in weapons_db.gd
-- [ ] Strategy scripts for new weapon types (WHIP, ARC, ERUPTION, DRONE)
-- [ ] VFX for each weapon
-- [ ] Pool manager registration + scenes
-- [ ] 2-3 evolution paths per new weapon
+These should not move to implementation until each has a full spec covering cadence, range, scaling, area behavior, and intended evolution routes.
 
 ---
 
-## 3. Passive Skills
+## 6. Passive System
 
-### 3.1 The Problem With the Current System
+### 6.1 Design Mandate
 
-The original 8 passives were **pure stat sticks**:
+The passive system must be rebuilt from scratch.
+
+A good passive is not "+x% to a stat." A good passive is a **build-shaping rule** that may also carry some stat value.
+
+### 6.2 Why the Old System Failed
+
+The original 8 passives were pure stat sticks:
 
 | Passive | Effect | Problem |
 |---|---|---|
@@ -131,54 +187,95 @@ The original 8 passives were **pure stat sticks**:
 | Focusing Lens | +area% | Same. |
 | Extra Powder | +proj count | Best of the bunch — visibly changes weapon behavior. |
 
-These are the exact "one-note stat sticks" the Survivor.io reference doc warns against in Section 19 ("Avoid"). They have no gameplay personality, create no decisions, and exist only as numbers on an upgrade card.
+These have no gameplay personality, create no decisions, and exist only as numbers on an upgrade card.
 
-### 3.2 What the Survivor.io Model Requires
+### 6.3 Passive Requirements
 
-From the reference doc:
+Every passive must satisfy all four conditions:
 
-> "Each passive must feel worth taking even if the linked transformation is never completed." (Section 9.3)
+**Immediate value** — The player should feel a difference immediately after taking it.
 
-> "If a passive is only selected to unlock an evo, it is not carrying enough standalone value." (Section 9.3, Risk)
+**Visible impact** — The passive should alter something noticeable in combat, not just backend efficiency.
 
-This means every passive needs:
-1. **Immediate value** — you feel it the moment you pick it up
-2. **Visible impact** — the player can see or feel the difference in gameplay
-3. **Evolution role** — it's the key that unlocks a specific weapon evolution
-4. **Identity** — it contributes to a build fantasy, not just a bigger number
+**Evolution role** — The passive should unlock or influence one or more evolution routes.
 
-### 3.3 What Needs to Happen
+**Identity contribution** — The passive should support a recognizable build fantasy.
 
-**The entire passive system needs to be redesigned from scratch.**
+### 6.4 Passive Behavior Categories
 
-The old 8 passives should be treated as a starting point for stat coverage but completely reworked in design philosophy. Each new passive needs:
+Examples of good passive behavior (not exhaustive):
 
-- A name with personality (not just "Gunpowder = damage")
-- A mechanical effect beyond flat stats (Extra Powder was the only one that visibly changed gameplay)
-- Clear pairing with 1-2 weapon evolutions
-- The "weapon-aware" trait concept from workshops (bonuses adapt to your loadout)
+- Extra instances or duplicates
+- Modified targeting or chain extension
+- Return-path or ricochet enhancement
+- Impact conversion (damage type changes)
+- Conditional bursts (on kill, on crit, on dash)
+- Enemy grouping or displacement
+- Overflow or echo behavior
+- Synergy with owned weapon types
 
-**Workshop context:** The user explored three different directions across workshops:
-1. Original 8 stat-stick passives (implemented, removed from pool)
-2. Traits (unlimited, weapon-aware) + Artifacts (6 slots, from bosses) — workshop C8/D7-D9
-3. Survivor.io model (6 passive slots, level via duplicates, paired to evolutions) — workshop E10
+### 6.5 Content Requirement
 
-**Direction 3 is the current target.** Directions 1 and 2 should be considered superseded, though individual ideas (weapon-aware bonuses, tiered scaling) can be folded into the new design.
+The target roster for launch:
 
-**What needs to be built:**
-- [ ] Complete passive redesign — new passives with mechanical effects, not just stats
-- [ ] Evolution pairing chart (which passive + which weapon = which evo)
-- [ ] Multi-evo support (one weapon paired with different passives → different evolutions)
-- [ ] Passive weapon-awareness (bonuses that adapt based on owned weapons)
-- [ ] Late-run scaling model (tiered passives? stacking? diminishing returns?)
+- **8-12 passives** (more than 6 so not every passive appears every run)
+- At least **one visible gameplay effect per passive**
+- At least **1-2 linked evolutions per passive**
+- At least **one passive per major weapon family or combat fantasy**
+
+### 6.6 Dropped Directions
+
+The following passive concepts from earlier workshops are superseded by the survivor.io model:
+
+| Concept | Workshop Source | Why Dropped |
+|---|---|---|
+| Traits (unlimited minor buffs, no slot cap) | C8, D7 | Undermines slot pressure. Replaced by 6-slot passive system. |
+| Artifacts (6 slots, boss drops, evo keys) | C8, D8 | Replaced by passives-as-evo-keys. Artifacts were a middleman layer. |
+| All-weapon-aware traits | D9, E10-E12 | Was designed for the Traits system. Individual passives can still adapt to loadout. |
+| Tiered trait scaling | E12 | Was for the unlimited-traits model. Passives now have levels. |
 
 ---
 
-## 4. Evolution / Transmutation
+## 7. Evolution System
 
-### 4.1 Current System (Implemented but Frozen)
+### 7.1 Base Rule
 
-6 recipes exist in code:
+A weapon evolution requires:
+- a max-level weapon,
+- a qualifying passive,
+- and an evolution trigger.
+
+### 7.2 Branching Rule
+
+A weapon may support multiple evolutions. If the player owns multiple qualifying passives when the weapon is eligible, the player **chooses** which evolution to take.
+
+```
+Arc Discharge (Max Lv)
+    +-- + Passive A -> Storm Conduit (chain density)
+    +-- + Passive B -> Split Current (forking arcs)
+    +-- + Passive C -> Plasma Surge (burn + explosions)
+```
+
+### 7.3 Evolution Standard
+
+Every evolution should:
+- produce a significant power spike (2-3x DPS),
+- alter behavior, not just damage,
+- reinforce a combat fantasy,
+- and remain readable onscreen.
+
+### 7.4 Evolution Trigger
+
+**Recommendation: next level-up after requirements met.**
+
+Why:
+- Easier than adding boss-chest pacing right now
+- Gives anticipation that instant auto-trigger lacks
+- Reuses existing draft UI structure
+
+### 7.5 Current State (Audit)
+
+6 recipes exist in code, all 1:1 pairings:
 
 | Active (Lv5) | + Passive | = Evolution | DPS Change |
 |---|---|---|---|
@@ -189,102 +286,59 @@ The old 8 passives should be treated as a starting point for stat coverage but c
 | Blight Flask | Focusing Lens | Plague Barrage | ~2.5x |
 | Seeker Rounds | Extra Powder | Bullet Storm | ~2x |
 
-**Audit:** These are 1:1 pairings (one weapon → one passive → one evolution). This is the simplest form of the survivor.io model. It works but creates the "solved-build risk" the reference doc warns about in Section 17.1.
+These are the simplest form of the model. 1:1 pairings create the "solved-build risk" where every weapon has one obvious best passive. Branching evolutions fix this.
 
-### 4.2 Target Evolution System
+### 7.6 Dropped Direction
 
-The new model should support **branching evolutions** — the reference doc's Section 12.4 and M&P's stated direction from workshop E10.
-
-```
-Arc Discharge (Max Lv)
-    ├── + Passive A → Storm Conduit (chain density)
-    ├── + Passive B → Split Current (forking arcs)
-    └── + Passive C → Plasma Surge (burn + explosions)
-```
-
-**Key rules from workshops:**
-- Character weapons evolve via passives (same system as pool weapons)
-- If you have multiple qualifying passives, you **choose** which evolution
-- Evolutions should feel like 2-3x power spikes
-- Evolutions should change functionality, not just increase numbers
-- Visual moment: transmutation should be flashy and memorable
-
-**What needs to be built:**
-- [ ] Branching evolution tree for every weapon (character + pool)
-- [ ] Evolution trigger logic (max level weapon + any qualifying passive)
-- [ ] Choice UI when multiple evolutions are available
-- [ ] Evolution VFX flash/celebration moment
-- [ ] New EvolutionData structure to support multiple routes per weapon
+**Character weapon branching at Lv3/Lv5** (Workshop F1) — conflicts with the unified evolution model. Character weapons should evolve the same way as pool weapons: max level + passive.
 
 ---
 
-## 5. Slot Constraints
+## 8. Drafting Rules
 
-### Survivor.io Reference
+### 8.1 Offer Composition
 
-- 6 Active Skill slots
-- 6 Passive Skill slots
-- Strict slot limit creates build pressure and identity
+The level-up system must offer both actives and passives. Weapon-only drafting is no longer acceptable.
 
-### M&P Current
+Each level-up presents 3 choices. Choices may include:
+- a new weapon,
+- a weapon duplicate (level up),
+- a new passive,
+- or a passive duplicate (level up).
 
-- 6 weapon slots (implemented)
-- 6 passive slots (implemented but passives removed from pool)
-- 1 element slot (implemented in data, not in gameplay)
+### 8.2 Weighting Principles
 
-### M&P Target
+The system should bias offers based on state:
 
-| Resource | Slots | Source |
-|---|---|---|
-| Active Skills (weapons) | 6 | 1 character weapon (locked) + 5 from level-up pool |
-| Passive Skills | 6 | All from level-up pool |
-| Element | 1 | Chosen at character select (not a slot — a modifier) |
+- If active slots are low, surface more new actives
+- If passive slots are low, surface more new passives
+- If many owned items are below cap, surface more duplicates
+- If an owned weapon is one step away from evolution, slightly increase supporting passive visibility
+- Once a branch is already strongly signaled, avoid overflooding irrelevant options
 
-**Audit:** The slot system itself is fine. 6+6 matches survivor.io's proven formula. The infrastructure exists in GameManager. What's missing is the content to fill those slots meaningfully.
+### 8.3 Forced Choice
 
-**Important constraint from workshops:** No skip on level-up — forced choice. This aligns with the survivor.io model where every pick matters for build identity.
+No skip remains correct. Forced choice preserves commitment pressure.
 
----
+### 8.4 Banish and Reroll
 
-## 6. Level-Up / Drafting
+Reroll and banish should be treated as run-shaping tools, not solutions for weak content.
 
-### Current Implementation
+- **Banish:** Unlock via Forge (meta progression), start at 1, upgradable to max 5
+- **Reroll:** Start at 0 per run, earned entirely through Forge
 
-- XP curve: `10 * level^1.3`
-- 3 choices per level-up card
-- Currently only offers: weapon upgrades (new weapons if slots open)
-- Rerolls: 3 per run (infinite in god mode)
+### 8.5 Current State
+
+- XP curve: `10 * level^1.3` — working
+- 3 choices per level-up — working
+- Forced choice — working
+- Level-up pool generation — **needs rewrite** (currently weapon-only)
+- Rerolls: 3 per run default — **needs rework** (should start at 0, earned via Forge)
 - Banish: not implemented
 
-### Target Implementation
-
-Level-up should offer a mix of:
-- **New weapons** (if slots open)
-- **Weapon upgrades** (duplicate = level up, like survivor.io star system)
-- **New passives** (if slots open)
-- **Passive upgrades** (duplicate = level up)
-
-**Key decisions still needed:**
-- What's the weighting? (How often do weapons vs passives appear?)
-- Should evolution trigger automatically when conditions are met, or at a trigger event (chest/boss)?
-- How visible should evolution requirements be during the run?
-
-**What already works:**
-- Level-up panel UI (3 choices, forced pick) ✓
-- XP curve and gem collection ✓
-- Weapon slot tracking ✓
-- Passive slot tracking ✓
-
-**What needs to be rewritten:**
-- [ ] Level-up pool generation (currently weapon-only, needs to mix weapons + passives)
-- [ ] Smart weighting (balance weapon/passive offerings based on what player has)
-- [ ] Banish system (unlock via Forge, start at 1, upgrade to max 5)
-- [ ] Reroll system (start at 0, earned via Forge)
-- [ ] Evolution trigger check after each level-up
-
 ---
 
-## 7. Comparison Matrix — M&P vs Survivor.io Model
+## 9. Comparison Matrix — M&P vs Survivor.io
 
 | Feature | Survivor.io | M&P Current | M&P Target | Gap |
 |---|---|---|---|---|
@@ -294,18 +348,18 @@ Level-up should offer a mix of:
 | Leveling actives | Star system (duplicates) | Level 1-5 via level-up | Same | None |
 | Leveling passives | Star system (duplicates) | Level 1-5 via level-up | Same | **Passives need to exist first** |
 | Evolution formula | Active max + Passive = Evo | Weapon Lv5 + Passive = Transmute | Same, but branching | **Branching logic needed** |
-| Evolution trigger | Boss chest | Auto on conditions met | TBD | **Decision needed** |
+| Evolution trigger | Boss chest | Auto on conditions met | Next level-up | **Implementation needed** |
 | Branching evos | Limited (some combo skills) | None (1:1 only) | Multi-path per weapon | **Major new system** |
-| Passive standalone value | Mixed (some are stat sticks) | All stat sticks | Weapon-aware, mechanical | **Full redesign needed** |
+| Passive standalone value | Mixed (some are stat sticks) | All stat sticks | Mechanical, build-shaping | **Full redesign needed** |
 | Build identity | Strong (slot pressure) | Weak (no passives in pool) | Strong (slot pressure + elements) | **Passives must return to pool** |
 | Forced choice | Yes (no skip) | Yes (implemented) | Yes | None |
 | Slot pressure | High | Low (only weapons compete) | High (weapons + passives) | **Passives must return to pool** |
 
 ---
 
-## 8. What We Keep
+## 10. Keep / Rewrite / Drop
 
-These systems are solid and align with the survivor.io model:
+### 10.1 Keep
 
 | System | Status | Notes |
 |---|---|---|
@@ -319,134 +373,230 @@ These systems are solid and align with the survivor.io model:
 | Signal bus pattern | Implemented | Decoupled communication. |
 | Weapon VFX (blocky pixel aesthetic) | Implemented | GPUParticles2D + draw_rect. Looks good. |
 
----
-
-## 9. What We Rewrite
-
-These systems exist but need significant changes:
+### 10.2 Rewrite
 
 | System | Current State | What Changes | Effort |
 |---|---|---|---|
-| Pool weapons (4 of 6) | Archived, generic | Replace with Gravity Lash, Sawblade, Geyser, Drone | **High** — 4 new weapon types |
-| Passives (all 8) | Removed from pool, stat sticks | Full redesign with mechanical effects + evo pairing | **High** — new design + code |
-| Evolution system | 1:1 recipes in evolution_db.gd | Branching multi-path, choice UI | **Medium** — new data structure + UI |
-| Level-up pool generation | Weapon-only | Mixed weapons + passives with smart weighting | **Medium** — rewrite pool logic |
-| WeaponData / PassiveData | Basic stat containers | Add evo pairing fields, weapon-aware flags | **Low** — extend existing Resources |
+| Pool weapons (4 of 6) | Archived, generic | Replace with Gravity Lash, Sawblade, Geyser, Drone | **High** |
+| Passives (all 8) | Removed from pool, stat sticks | Full redesign with mechanical effects + evo pairing | **High** |
+| Evolution system | 1:1 recipes in evolution_db.gd | Branching multi-path, choice UI | **Medium** |
+| Level-up pool generation | Weapon-only | Mixed weapons + passives with smart weighting | **Medium** |
+| WeaponData / PassiveData | Basic stat containers | Add evo pairing fields, weapon-aware flags | **Low** |
 
----
+### 10.3 Drop
 
-## 10. What We Drop
-
-These concepts from workshops should be abandoned as they conflict with the survivor.io model:
-
-| Concept | Source | Why Drop |
+| Concept | Workshop Source | Why Drop |
 |---|---|---|
-| Traits (unlimited minor buffs) | Workshop C8, D7 | Replaced by the 6-slot passive system. Unlimited buffs undermine slot pressure. |
-| Artifacts (6 slots from bosses) | Workshop C8, D8 | Replaced by passives-as-evo-keys. Artifacts were a middleman layer that's no longer needed. |
-| Character weapon branching at Lv3/Lv5 | Workshop F1 | Conflicts with the unified evo model. Character weapons should evolve the same way as pool weapons (max level + passive). |
-| All-weapon-aware traits | Workshop D9, E10-E12 | The "all traits are weapon-aware" concept was for the Traits system which is now dropped. Individual passives can still be weapon-aware. |
-| Tiered trait scaling | Workshop E12 | Was designed for the unlimited-traits model. Passives now have levels (like survivor.io stars). |
+| Traits (unlimited minor buffs) | C8, D7 | Replaced by 6-slot passive system. Unlimited buffs undermine slot pressure. |
+| Artifacts (6 slots from bosses) | C8, D8 | Replaced by passives-as-evo-keys. Middleman layer no longer needed. |
+| Character weapon branching at Lv3/Lv5 | F1 | Conflicts with unified evo model. Character weapons evolve via max level + passive. |
+| All-weapon-aware traits | D9, E10-E12 | Was for the Traits system which is dropped. Individual passives can still adapt. |
+| Tiered trait scaling | E12 | Was for the unlimited-traits model. Passives now have levels. |
 
 ---
 
-## 11. What's Undefined (Open Questions)
+## 11. Content Scope — First Playable Target
 
-These need answers before implementation:
+Do not build the full dream version first.
 
-### 11.1 Evolution Trigger
-**When does evolution happen?** Survivor.io uses boss chests. Our current system auto-triggers. Options:
-- Auto-trigger on conditions met (current — simple, instant gratification)
-- Next level-up after conditions met (slight delay, feels earned)
-- Boss chest / milestone event (survivor.io style, biggest anticipation)
+The first truly useful target is:
 
-### 11.2 Evolution Choice UI
-**When multiple passives qualify for different evos, how does the player choose?**
-- Pop-up card choice (like level-up but for evos)
-- Special "forge" interaction
-- Auto-offer at next level-up
+- 4 character weapons (existing)
+- 2 restored pool weapons (Arc Discharge, Seeker Rounds)
+- 4 redesigned passives (new, mechanical, with evo pairings)
+- 1 evolution branch per active in first pass
+- Mixed actives/passives in the draft pool
+- One simple evolution choice flow
+- No codex required yet
+- Minimal celebration VFX acceptable
 
-### 11.3 Passive Design
-**What should the new passives actually be?** The redesign is stated but no specific passives have been designed. We need:
-- 8-12 passives to fill the 6 slots with variety
-- Each with a mechanical effect (not just +X%)
-- Each paired to 1-2 weapon evolutions
-- Each carrying standalone value
+This is enough to prove that the system produces build identity and meaningful planning. Everything else scales from this foundation.
 
-### 11.4 Pool Weapon Availability
-**How many pool weapons are free from run 1?** Conflicting answers exist:
-- "2 free, 4 unlock" (workshop D12)
+---
+
+## 12. Open Design Decisions
+
+These must be resolved before full production:
+
+### 12.1 Evolution choice UI
+Recommendation: use a level-up style pop-up to minimize new UX complexity.
+
+### 12.2 Initial pool availability
+How many of the 6 pool weapons are available from run 1?
+- "2 free, 4 unlock progressively" (workshop D12)
 - "I'd like more than 2 free, VS has lots off rip" (workshop D12 note)
-- This is unresolved
+- Unresolved.
 
-### 11.5 New Weapon Specs
-**The 4 replacement weapons have identities but no numbers.** Need:
-- Base damage, scaling per level
-- Fire rate, range, AoE radius
-- Unique mechanic parameters (knockback distance, boomerang arc, drone AI, etc.)
+### 12.3 Magma Geyser role
+Define whether this is: area denial, repeated vertical burst, delayed lane-clear, or knockup/eruption control.
 
-### 11.6 Character Weapon Evolutions
-**No evolution paths exist for the 4 character weapons.** These need:
-- 2-3 evolution paths each
-- Paired passives for each path
-- Evolution weapon designs (behavior + VFX)
+### 12.4 Passive launch roster
+Finalize the first 4-6 actual passives before building the complete data architecture.
 
-### 11.7 Magma Geyser Identity
-**User pivoted from "mouse-controlled geyser" to "brick weapon from survivor.io" without specifying what that means.** This weapon needs a creative direction pass.
+### 12.5 Character weapon evolutions
+Define at least one evolution for each starter weapon before expanding pool-weapon ambition.
+
+### 12.6 New weapon specs
+The 4 replacement weapons have identities but no numbers. Each needs: base damage, scaling per level, fire rate, range, AoE radius, and unique mechanic parameters.
 
 ---
 
-## 12. Recommended Implementation Order
+## 13. Production Priorities
 
-Based on the reference doc's Section 14.6 guidance ("small batches with intentional spread"):
+### Phase 1 — Re-enable Buildcraft
+- Redesign first passive batch (4-6 passives)
+- Return passives to level-up pool
+- Re-enable Arc Discharge and Seeker Rounds
+- Implement mixed active/passive offer generation
+- Implement one-branch evolution support
 
-### Phase 1: Foundation (Upgrade Rework)
-1. Redesign passives (8-12 new passives with mechanical effects)
-2. Return passives to level-up pool with smart weighting
-3. Define evolution pairing chart (which passive + which weapon = which evo)
-4. Implement branching evolution logic + choice UI
-5. Un-archive Arc Discharge and Seeker Rounds with new evolution paths
+### Phase 2 — Prove Build Identity
+- Add first evolution branches for all starter weapons
+- Add evolution choice flow UI
+- Tune offer weighting
+- Tune passive usefulness without evolutions (must feel worth taking solo)
 
-### Phase 2: New Weapons
-6. Spec and implement the 4 replacement pool weapons
-7. Design character weapon evolution paths
-8. Wire up all evolution recipes
+### Phase 3 — Expand Roster
+- Implement Gravity Lash
+- Implement Sawblade Launcher
+- Finalize and implement Magma Geyser
+- Implement Phantom Sentry
+- Add more passives
+- Expand multi-branch evolution coverage
 
-### Phase 3: Polish
-9. Evolution VFX celebration moments
-10. UI for showing evolution requirements during run
-11. Codex / collection screen for discovered evolutions
-12. Balance pass on all weapons, passives, and evolutions
-
----
-
-## 13. The Emotional Arc (From Survivor.io Reference, Section 6)
-
-The reference doc describes the ideal player experience as:
-
-> * uncertainty at the start,
-> * intention in the middle,
-> * transformation at the spike,
-> * mastery near the end.
-
-**M&P currently delivers:**
-- Uncertainty at the start ✓ (which weapons will I be offered?)
-- Intention in the middle ✗ (no passives = no planning = no "I'm building toward X")
-- Transformation at the spike ✗ (no evolutions active = no power spike moments)
-- Mastery near the end ✗ (build doesn't change enough to feel like mastery)
-
-**After the rework, M&P should deliver all four.** The passive system is the missing piece that turns "pick weapons, get bigger numbers" into "author a build."
+### Phase 4 — Polish and Surface Knowledge
+- Evolution VFX celebration
+- Evolution-ready hinting UI
+- Discovered-evolution codex
+- Reroll/banish balancing
+- Content cleanup and numerical tuning
 
 ---
 
-## 14. Summary
+## 14. Creative Content Framework
 
-M&P has strong bones: 4 unique character weapons, clean architecture, solid VFX, working core loop. But its upgrade system is currently gutted — passives removed, evolutions frozen, pool weapons archived. The game is running on character weapons only, which means the middle and late run feel flat.
+### 14.1 Content Pillars
 
-The survivor.io-inspired model (6 actives + 6 passives + branching evolutions) is the right target. It creates slot pressure, meaningful decisions, and power spike moments. Most of the infrastructure exists (slots, level-up UI, evolution data). What's missing is the **content and design** to populate that infrastructure:
+Content should express these creative constraints:
 
-- **New passives** with mechanical identity (not stat sticks)
-- **New pool weapons** that feel as flashy as the character weapons
-- **Branching evolutions** that give players reason to care about passive choices
-- **A level-up pool** that mixes weapons and passives with smart weighting
+**Improvised escalation** — Weapons and supports should feel like unstable or escalating tools that become more dangerous, more specialized, or more visually intense over the course of a run.
 
-The single biggest lever for making M&P feel like a real game is getting passives back into the level-up pool with evolution pairings. Everything else is secondary.
+**Readable chaos** — The game should support dense, exciting combat states without losing legibility. Builds should feel powerful and dramatic, but their core behavior should still be readable by the player.
+
+**Distinct build fantasies** — Different runs should feel like meaningfully different combat identities, not simply different numerical loadouts.
+
+**Transformation as reward** — Evolutions should feel like earned moments of payoff rather than passive stat inflation.
+
+**Mechanical personality** — Each weapon or support should have a recognizable gameplay attitude: precise, reckless, oppressive, unstable, surgical, greedy, or controlling.
+
+### 14.2 Content Generation Matrix
+
+New active skills can be created by selecting across these dimensions:
+
+**Delivery:** projectile, beam, wave, orbit, trap, summon, burst, chain
+
+**Targeting:** nearest, random, aimed, sweeping arc, returning path, self-centered, delayed lock-on, area-marked
+
+**Damage Pattern:** direct hit, pierce, splash, DoT, ricochet, pulse, detonation, chaining
+
+**Utility:** knockback, pull, slow, stun, shielding, mark, resource gain, zone denial
+
+New passive skills can be generated through:
+
+**Stat Axis:** rate, size, count, duration, velocity, crit, status chance, range
+
+**Rule-Bending Axis:** split, echo, duplicate, convert, overflow, chain, delay, consume
+
+**Build Role:** enabler, amplifier, stabilizer, converter, payoff multiplier, conditional scaler
+
+A new concept should be describable in one sentence using these dimensions.
+
+### 14.3 Target Build Fantasies
+
+The system should intentionally support multiple play fantasies:
+
+- **Precision** — surgical, efficient, deliberate
+- **Domination** — area control, persistent effects, oppressive coverage
+- **Volatile** — explosive, high-variance, unstable
+- **Control** — slows, groups, redirects, contains
+- **Greed** — invests early, pays off heavily later
+- **Engine** — assembles moving parts into a self-sustaining machine
+
+### 14.4 Creative Evaluation Questions
+
+When reviewing new content:
+
+- What is the fantasy of this content?
+- What makes it feel different from existing options?
+- Does it create a new decision, or only a bigger number?
+- Is its value visible to the player in moment-to-moment play?
+- Does it strengthen a build identity or blur one?
+- Would a player remember this content after a run?
+- Does it open new transformation routes, or only serve existing ones?
+- If its optimal pairing is missed, is it still satisfying?
+
+---
+
+## 15. UX and Readability
+
+The player should never feel that the system is only understandable through external charts.
+
+Recommended UI features:
+
+- Support icons visually linked to compatible actives
+- Codex entries once combinations are discovered
+- Silhouette previews for locked evolutions
+- Simple requirement phrasing ("Needs: Arc Discharge Lv5 + [Passive]")
+- Progress markers ("2/2 requirements met")
+- Hover text or popups that remind the player what a passive currently benefits
+
+---
+
+## 16. Success Criteria
+
+This system pass is successful if:
+
+- Passives are exciting enough to draft even before an evolution payoff
+- Runs develop a visible mid-game plan
+- Evolutions feel earned and memorable
+- The player can describe their build in words, not just numbers
+- Late-run combat looks meaningfully different depending on draft choices
+
+---
+
+## 17. Immediate Next-Step Checklist
+
+### Content
+- [ ] Finalize first 4 redesigned passive concepts
+- [ ] Finalize 1 evolution branch for each starter weapon
+- [ ] Write full combat specs for Arc Discharge and Seeker Rounds (un-archive)
+- [ ] Decide whether Gravity Lash or Sawblade Launcher is the first new pool weapon
+
+### Systems
+- [ ] Return passives to the level-up pool
+- [ ] Add mixed active/passive offer generation
+- [ ] Implement one-branch evolution eligibility check
+- [ ] Implement "next level-up" evolution trigger flow
+
+### UX
+- [ ] Add simple evolution-ready UI indicator
+- [ ] Add first-pass evolution choice pop-up
+- [ ] Add temporary requirement text for debugging and playtests
+
+### Validation
+- [ ] Run a vertical slice with 4 starter weapons, 2 pool weapons, and 4 passives
+- [ ] Check whether passives feel worth taking before evo payoff
+- [ ] Check whether players can describe their build direction by mid-run
+- [ ] Check whether late-run builds differ in play texture, not just damage output
+
+---
+
+## 18. Summary
+
+Mortar & Pistol already has the technical bones for a strong buildcraft game: distinctive character weapons, slot infrastructure, level-up UI, and solid combat presentation. What it lacks is a real build layer. The absence of passives from the draft pool and the inactivity of the evolution system flatten the run into a narrow weapon-upgrade loop.
+
+The correct target is a unified run structure where passives return as meaningful picks, actives and passives compete for player planning attention, and evolved weapons act as payoff moments for earlier decisions. The old passive model should not be restored — it should be replaced. The archived weapon roster should not be blindly re-enabled — it should be curated. And the branching evolution model should be introduced in a smaller playable slice before the full content dream is attempted.
+
+The single biggest lever remains:
+
+**Get compelling passives back into the level-up pool and make them matter.**

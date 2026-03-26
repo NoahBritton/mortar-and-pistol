@@ -150,6 +150,15 @@ func _detonate() -> void:
 	# Screen shake
 	SignalBus.screen_shake_requested.emit(4.0, 0.15)
 
+	# Chain-Detonation Keg: propagate corpse explosions
+	if has_meta("chain_data"):
+		var chain_data = get_meta("chain_data") as WeaponData
+		var chain_depth = get_meta("chain_depth") as int
+		var chain_base_damage = get_meta("chain_base_damage") as int
+		MineStrategy.spawn_chain_explosion(
+			global_position, chain_base_damage, chain_data, chain_depth + 1, get_tree()
+		)
+
 	# Birdshot synergy: post-explosion shrapnel
 	if _shrapnel_count > 0 and _weapon_data:
 		var frag_count = _shrapnel_count * 2

@@ -80,13 +80,50 @@ func on_hit(hit_enemy: Node2D = null) -> void:
 				continue
 			if global_position.distance_squared_to(enemy.global_position) <= splash_sq:
 				enemy.take_damage(damage)
+	# Cluster Salvo: spawn submunitions on hit
+	if has_meta("cluster_salvo"):
+		_spawn_submunitions()
 	_release()
 
 func _release() -> void:
+	# Cluster Salvo: spawn submunitions on expiry too
+	if has_meta("cluster_salvo") and _lifetime >= _max_lifetime - 0.01:
+		_spawn_submunitions()
 	_missile_trail.emitting = false
 	if hit_area.is_in_group("projectiles"):
 		hit_area.remove_from_group("projectiles")
+	# Clear cluster metadata
+	if has_meta("cluster_salvo"):
+		remove_meta("cluster_salvo")
+	if has_meta("cluster_data"):
+		remove_meta("cluster_data")
+	if has_meta("cluster_level"):
+		remove_meta("cluster_level")
 	PoolManager.release(self)
+
+func _spawn_submunitions() -> void:
+	var data = get_meta("cluster_data") as WeaponData
+	if data == null:
+		return
+	var sub_damage = int(damage * 0.35)
+	if sub_damage < 1:
+		sub_damage = 1
+	var sub_count := 4
+	# Remove meta so we don't double-spawn from both on_hit and _release
+	remove_meta("cluster_salvo")
+
+	for i in sub_count:
+		var angle = TAU * float(i) / sub_count + randf_range(-0.2, 0.2)
+		var dir = Vector2(cos(angle), sin(angle))
+		var proj = PoolManager.acquire("projectile")
+		if proj:
+			proj.reset(global_position + dir * 8.0, dir, data, 1)
+			proj.speed = 160.0
+			proj.damage = sub_damage
+			proj._hits_remaining = 1
+			proj._max_lifetime = 0.6
+			proj._is_fragment = true
+			proj.color_rect.color = data.icon_color * Color(1.0, 1.0, 1.0, 0.6)
 
 func _create_missile_trail() -> GPUParticles2D:
 	var p = GPUParticles2D.new()

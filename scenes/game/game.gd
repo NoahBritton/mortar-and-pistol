@@ -8,6 +8,7 @@ var _heal_spawn_interval: float = 20.0  # seconds between heal spawns
 var _lodestone_spawn_timer: float = 0.0
 var _lodestone_spawn_interval: float = 45.0
 var _prev_player_hp: int = -1
+var _pending_evolutions: Array[EvolutionData] = []  # Queued for next level-up
 
 func _ready() -> void:
 	# Register object pools
@@ -32,6 +33,7 @@ func _ready() -> void:
 	SignalBus.enemy_killed.connect(_on_enemy_killed)
 	SignalBus.damage_dealt.connect(_on_damage_dealt)
 	SignalBus.upgrade_chosen.connect(_on_upgrade_chosen)
+	SignalBus.evolution_chosen.connect(_on_evolution_chosen)
 	SignalBus.player_health_changed.connect(_on_player_health_changed)
 	SignalBus.screen_shake_requested.connect(_on_screen_shake)
 
@@ -77,6 +79,25 @@ func _show_next_level_up() -> void:
 		get_tree().paused = false
 		return
 	get_tree().paused = true
+
+	# Check if evolutions are ready — show evo popup before normal level-up
+	if not _pending_evolutions.is_empty():
+		# Group by base weapon
+		var by_weapon: Dictionary = {}
+		for rule in _pending_evolutions:
+			if not by_weapon.has(rule.base_weapon_id):
+				by_weapon[rule.base_weapon_id] = []
+			by_weapon[rule.base_weapon_id].append(rule)
+		# Show popup for the first weapon group
+		var first_key = by_weapon.keys()[0]
+		var rules_for_weapon: Array[EvolutionData] = []
+		for r in by_weapon[first_key]:
+			rules_for_weapon.append(r)
+		var evo_panel = $CanvasLayer/EvolutionPopup
+		if evo_panel:
+			evo_panel.show_evolution_choices(rules_for_weapon)
+		return
+
 	var panel = $CanvasLayer/LevelUpPanel
 	if panel:
 		if panel.has_upgrades_available():
@@ -112,32 +133,36 @@ func _on_upgrade_chosen(choice: Dictionary) -> void:
 		"new_weapon":
 			wm.add_weapon(choice.data)
 
-	# Check for evolutions after every upgrade
-	_check_and_apply_evolutions(wm)
+	# Queue newly-eligible evolutions for next level-up (don't apply instantly)
+	_queue_pending_evolutions()
 
 	# Consume one pending level, then show next if any remain
 	GameManager.pending_levels -= 1
 	_show_next_level_up()
 
-func _check_and_apply_evolutions(wm: Node) -> void:
-	var available = GameManager.check_evolutions()
-	if available.is_empty():
-		return
-	# Group by base weapon to prevent double-evolving
-	var by_weapon: Dictionary = {}
-	for rule in available:
-		if not by_weapon.has(rule.base_weapon_id):
-			by_weapon[rule.base_weapon_id] = []
-		by_weapon[rule.base_weapon_id].append(rule)
-	for weapon_id in by_weapon:
-		var rules: Array = by_weapon[weapon_id]
-		# For now, pick the first valid rule. Issue 12 will add a choice popup.
-		var rule = rules[0]
-		var evolved = WeaponsDB.get_weapon(rule.evolved_weapon_id)
-		if evolved == null:
-			continue
+func _on_evolution_chosen(rule: EvolutionData) -> void:
+	var wm = player.get_node("WeaponManager")
+	var evolved = WeaponsDB.get_weapon(rule.evolved_weapon_id)
+	if evolved:
 		GameManager.evolve_weapon(rule.base_weapon_id, evolved)
 		wm.replace_weapon(rule.base_weapon_id, evolved)
+	# Remove all pending evo rules for this base weapon
+	_pending_evolutions = _pending_evolutions.filter(func(r): return r.base_weapon_id != rule.base_weapon_id)
+	# Consume one pending level for the evo, then continue
+	GameManager.pending_levels -= 1
+	_show_next_level_up()
+
+func _queue_pending_evolutions() -> void:
+	var available = GameManager.check_evolutions()
+	for rule in available:
+		# Don't double-queue
+		var already_queued = false
+		for existing in _pending_evolutions:
+			if existing.evolved_weapon_id == rule.evolved_weapon_id:
+				already_queued = true
+				break
+		if not already_queued:
+			_pending_evolutions.append(rule)
 
 func _spawn_xp_gem(pos: Vector2) -> void:
 	var gem = PoolManager.acquire("xp_gem")

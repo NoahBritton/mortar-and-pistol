@@ -12,6 +12,7 @@ signal damage_dealt(position: Vector2, amount: int)
 signal game_started
 signal game_over
 signal upgrade_chosen(choice: Dictionary)
+signal evolution_chosen(rule: EvolutionData)
 
 signal wave_timer_updated(elapsed_seconds: float)
 signal inventory_changed

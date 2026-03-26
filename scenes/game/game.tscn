@@ -36,3 +36,20 @@ layout_mode = 3
 
 [node name="PauseMenu" parent="CanvasLayer" instance=ExtResource("8")]
 layout_mode = 3
+
+[node name="EvolutionPopup" type="Control" parent="CanvasLayer"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 0
+
+[node name="Panel" type="PanelContainer" parent="CanvasLayer/EvolutionPopup"]
+layout_mode = 0
+
+[node name="VBox" type="VBoxContainer" parent="CanvasLayer/EvolutionPopup/Panel"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="CanvasLayer/EvolutionPopup/Panel/VBox"]
+layout_mode = 2
+
+[node name="CardsRow" type="HBoxContainer" parent="CanvasLayer/EvolutionPopup/Panel/VBox"]
+layout_mode = 2

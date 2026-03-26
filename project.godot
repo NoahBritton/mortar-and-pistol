@@ -21,6 +21,7 @@ GameManager="*res://scripts/autoload/game_manager.gd"
 PoolManager="*res://scripts/autoload/pool_manager.gd"
 AudioManager="*res://scripts/autoload/audio_manager.gd"
 UiTheme="*res://scripts/autoload/ui_theme.gd"
+PassiveEffects="*res://scripts/autoload/passive_effects.gd"
 CrashHandler="*res://scripts/autoload/crash_handler.gd"
 GodotIQRuntime="*res://addons/godotiq/godotiq_runtime.gd"
 

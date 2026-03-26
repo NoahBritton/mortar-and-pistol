@@ -22,3 +22,5 @@ func fire(data: WeaponData, level: int) -> void:
 		if proj2:
 			proj2.reset(p.global_position, direction, data, level)
 	)
+	# Phantom Echo (fires echo of the burst)
+	PassiveEffects.try_echo_projectile(player_pos, direction, data, level)

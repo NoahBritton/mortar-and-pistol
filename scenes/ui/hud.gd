@@ -31,6 +31,12 @@ var weapon_icons = {
 	"scatter_flask": _PARTICLE_DIR + "circle_05.png",
 	"powder_keg": _SCRIBBLE_DIR + "tile_crate.png",
 	"twin_barrels": _SCRIBBLE_DIR + "item_blaster.png",
+	"implosion_flask": _PARTICLE_DIR + "circle_05.png",
+	"chain_detonation_keg": _SCRIBBLE_DIR + "tile_crate.png",
+	"ghost_barrage": _SCRIBBLE_DIR + "item_blaster.png",
+	"refraction_beam": _SCRIBBLE_DIR + "item_rod.png",
+	"cluster_salvo": _SCRIBBLE_DIR + "item_bow.png",
+	"storm_engine": _PARTICLE_DIR + "spark_05.png",
 }
 
 var passive_icons = {
@@ -42,6 +48,12 @@ var passive_icons = {
 	"lodestone": _PARTICLE_DIR + "twirl_02.png",
 	"focusing_lens": _PARTICLE_DIR + "light_01.png",
 	"extra_powder": _SCRIBBLE_DIR + "tile_gem.png",
+	"magnetism": _PARTICLE_DIR + "twirl_02.png",
+	"volatile_kill": _PARTICLE_DIR + "scorch_02.png",
+	"phantom_echo": _PARTICLE_DIR + "smoke_07.png",
+	"ricochet": _PARTICLE_DIR + "spark_05.png",
+	"shrapnel": _PARTICLE_DIR + "flare_01.png",
+	"overclock": _PARTICLE_DIR + "flame_02.png",
 }
 
 func _ready() -> void:
@@ -110,8 +122,8 @@ func _rebuild_weapon_slots() -> void:
 	for entry in GameManager.weapon_inventory:
 		var slot = _create_slot(entry.data.icon_color, entry.data.weapon_name, entry.level, entry.data.max_level)
 		if not entry.data.is_evolution:
-			var rule = EvolutionDB.get_rule_for_weapon(entry.data.weapon_id)
-			if rule:
+			var rules = EvolutionDB.get_rules_for_weapon(entry.data.weapon_id)
+			for rule in rules:
 				var passive = PassivesDB.get_passive(rule.required_passive_id)
 				if passive:
 					var hint = Label.new()

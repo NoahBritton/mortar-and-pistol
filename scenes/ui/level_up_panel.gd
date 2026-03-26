@@ -168,6 +168,12 @@ func _get_choice_icon(choice: Dictionary) -> String:
 				"scatter_flask": _PARTICLE_DIR + "circle_05.png",
 				"powder_keg": _SCRIBBLE_DIR + "tile_crate.png",
 				"twin_barrels": _SCRIBBLE_DIR + "item_blaster.png",
+				"implosion_flask": _PARTICLE_DIR + "circle_05.png",
+				"chain_detonation_keg": _SCRIBBLE_DIR + "tile_crate.png",
+				"ghost_barrage": _SCRIBBLE_DIR + "item_blaster.png",
+				"refraction_beam": _SCRIBBLE_DIR + "item_rod.png",
+				"cluster_salvo": _SCRIBBLE_DIR + "item_bow.png",
+				"storm_engine": _PARTICLE_DIR + "spark_05.png",
 			}
 			return icons.get(weapon_id, _SCRIBBLE_DIR + "item_sword.png")
 		"new_passive", "upgrade_passive":
@@ -181,6 +187,12 @@ func _get_choice_icon(choice: Dictionary) -> String:
 				"lodestone": _PARTICLE_DIR + "twirl_02.png",
 				"focusing_lens": _PARTICLE_DIR + "light_01.png",
 				"extra_powder": _SCRIBBLE_DIR + "tile_gem.png",
+				"magnetism": _PARTICLE_DIR + "twirl_02.png",
+				"volatile_kill": _PARTICLE_DIR + "scorch_02.png",
+				"phantom_echo": _PARTICLE_DIR + "smoke_07.png",
+				"ricochet": _PARTICLE_DIR + "spark_05.png",
+				"shrapnel": _PARTICLE_DIR + "flare_01.png",
+				"overclock": _PARTICLE_DIR + "flame_02.png",
 			}
 			return icons.get(passive_id, _SCRIBBLE_DIR + "tile_coin.png")
 	return _SCRIBBLE_DIR + "tile_cog.png"
@@ -259,24 +271,86 @@ func _is_passive_relevant(passive: PassiveData) -> bool:
 func _generate_choices(count: int) -> Array[Dictionary]:
 	var pool: Array[Dictionary] = []
 
+	# ── Weapon upgrades (owned, below max level) ──
 	for entry in GameManager.weapon_inventory:
 		if entry.level < entry.data.max_level:
-			pool.append({"type": "upgrade_weapon", "data": entry.data})
+			pool.append({"type": "upgrade_weapon", "data": entry.data, "weight": 10.0})
 
+	# ── New weapons (if slots available) ──
 	if GameManager.weapon_inventory.size() < GameManager.MAX_WEAPON_SLOTS:
 		for w in WeaponsDB.get_all_base_weapons():
 			if GameManager.has_weapon(w.weapon_id):
 				continue
-			var rule = EvolutionDB.get_rule_for_weapon(w.weapon_id)
-			if rule and GameManager.has_weapon(rule.evolved_weapon_id):
+			# Skip if we already own any evolved form of this weapon
+			var dominated = false
+			for rule in EvolutionDB.get_rules_for_weapon(w.weapon_id):
+				if GameManager.has_weapon(rule.evolved_weapon_id):
+					dominated = true
+					break
+			if dominated:
 				continue
-			pool.append({"type": "new_weapon", "data": w})
+			pool.append({"type": "new_weapon", "data": w, "weight": 8.0})
 
-	# Passives removed from pool — upgrade system rework pending
+	# ── Passive upgrades (owned, below max level) ──
+	for entry in GameManager.passive_inventory:
+		if entry.level < entry.data.max_level:
+			pool.append({"type": "upgrade_passive", "data": entry.data, "weight": 10.0})
 
-	pool.shuffle()
+	# ── New passives (if slots available, filtered by relevancy) ──
+	if GameManager.passive_inventory.size() < GameManager.MAX_PASSIVE_SLOTS:
+		for p in PassivesDB.get_all_passives():
+			if GameManager.has_passive(p.passive_id):
+				continue
+			if not _is_passive_relevant(p):
+				continue
+			var w = 6.0
+			# Boost passives that would unlock an evolution for an owned weapon
+			if _passive_enables_evo(p.passive_id):
+				w = 12.0
+			pool.append({"type": "new_passive", "data": p, "weight": w})
 
+	# ── Bias: empty slot filling ──
+	var weapons_empty = GameManager.weapon_inventory.size() < GameManager.MAX_WEAPON_SLOTS
+	var passives_empty = GameManager.passive_inventory.size() < GameManager.MAX_PASSIVE_SLOTS
+	if weapons_empty:
+		for entry in pool:
+			if entry.type == "new_weapon":
+				entry.weight *= 1.5
+	if passives_empty:
+		for entry in pool:
+			if entry.type == "new_passive":
+				entry.weight *= 1.5
+
+	# ── Weighted shuffle and pick ──
 	var result: Array[Dictionary] = []
-	for i in mini(count, pool.size()):
-		result.append(pool[i])
+	var remaining = pool.duplicate()
+	for i in mini(count, remaining.size()):
+		var choice = _weighted_pick(remaining)
+		if choice.is_empty():
+			break
+		result.append(choice)
+		remaining.erase(choice)
 	return result
+
+func _weighted_pick(pool: Array[Dictionary]) -> Dictionary:
+	if pool.is_empty():
+		return {}
+	var total = 0.0
+	for entry in pool:
+		total += entry.get("weight", 1.0)
+	var roll = randf() * total
+	var sum = 0.0
+	for entry in pool:
+		sum += entry.get("weight", 1.0)
+		if roll <= sum:
+			return entry
+	return pool.back()
+
+func _passive_enables_evo(passive_id: String) -> bool:
+	for rule in EvolutionDB.get_all_rules():
+		if rule.required_passive_id != passive_id:
+			continue
+		var entry = GameManager.get_weapon_entry(rule.base_weapon_id)
+		if not entry.is_empty():
+			return true
+	return false

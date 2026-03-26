@@ -67,6 +67,8 @@ func _on_weapon_fire(weapon_id: String) -> void:
 	# Quicksilver synergy: for MINE weapons, proj_speed_mult boosts fire rate
 	if data.weapon_type == WeaponData.WeaponType.MINE:
 		rate_mult *= GameManager.proj_speed_mult
+	# Overclock passive: consecutive hits boost fire rate
+	rate_mult *= (1.0 + PassiveEffects.get_overclock_fire_rate_bonus())
 	_weapon_timers[weapon_id].wait_time = 1.0 / (data.get_fire_rate(level) * rate_mult)
 
 	var strategy = _get_strategy(data.weapon_type)

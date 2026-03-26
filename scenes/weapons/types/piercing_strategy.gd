@@ -11,3 +11,4 @@ func fire(data: WeaponData, level: int) -> void:
 	var proj = PoolManager.acquire("projectile")
 	if proj:
 		proj.reset(player_pos, direction, data, level)
+	PassiveEffects.try_echo_projectile(player_pos, direction, data, level)

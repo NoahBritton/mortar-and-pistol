@@ -40,6 +40,7 @@ func _ready() -> void:
 	var starting_weapon = WeaponsDB.get_weapon(char_data.weapon_id)
 	GameManager.add_weapon(starting_weapon)
 	player.get_node("WeaponManager").add_weapon(starting_weapon)
+	PassiveEffects.reset()
 
 	# Set player color to match character
 	player.get_node("ColorRect").color = char_data.color
@@ -120,7 +121,18 @@ func _on_upgrade_chosen(choice: Dictionary) -> void:
 
 func _check_and_apply_evolutions(wm: Node) -> void:
 	var available = GameManager.check_evolutions()
+	if available.is_empty():
+		return
+	# Group by base weapon to prevent double-evolving
+	var by_weapon: Dictionary = {}
 	for rule in available:
+		if not by_weapon.has(rule.base_weapon_id):
+			by_weapon[rule.base_weapon_id] = []
+		by_weapon[rule.base_weapon_id].append(rule)
+	for weapon_id in by_weapon:
+		var rules: Array = by_weapon[weapon_id]
+		# For now, pick the first valid rule. Issue 12 will add a choice popup.
+		var rule = rules[0]
 		var evolved = WeaponsDB.get_weapon(rule.evolved_weapon_id)
 		if evolved == null:
 			continue

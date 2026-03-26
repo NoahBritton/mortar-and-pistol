@@ -51,7 +51,7 @@ static func _ensure_init() -> void:
 	arc_discharge.icon_color = Color(0.4, 0.6, 1.0)
 	arc_discharge.weapon_type = WeaponData.WeaponType.CHAIN
 	arc_discharge.max_level = 5
-	arc_discharge.is_archived = true
+	arc_discharge.is_archived = false
 	arc_discharge.base_damage = 12
 	arc_discharge.damage_per_level = 4
 	arc_discharge.base_fire_rate = 0.8
@@ -108,7 +108,7 @@ static func _ensure_init() -> void:
 	seeker_rounds.icon_color = Color(0.8, 0.4, 1.0)
 	seeker_rounds.weapon_type = WeaponData.WeaponType.BARRAGE
 	seeker_rounds.max_level = 5
-	seeker_rounds.is_archived = true
+	seeker_rounds.is_archived = false
 	seeker_rounds.base_damage = 15
 	seeker_rounds.damage_per_level = 3
 	seeker_rounds.base_fire_rate = 0.4
@@ -223,6 +223,104 @@ static func _ensure_init() -> void:
 	bullet_storm.attack_range = 600.0
 	bullet_storm.used_stats = ["proj_speed_mult", "area_mult", "proj_count_bonus"]
 	_weapons["bullet_storm"] = bullet_storm
+
+	# ── Phase 1 Evolved Weapons (character weapon evolutions) ──
+
+	var implosion_flask = WeaponData.new()
+	implosion_flask.weapon_id = "implosion_flask"
+	implosion_flask.weapon_name = "Implosion Flask"
+	implosion_flask.description = "Flask creates a suction vortex before detonating."
+	implosion_flask.icon_color = Color(0.3, 0.5, 0.9)
+	implosion_flask.weapon_type = WeaponData.WeaponType.BURST
+	implosion_flask.max_level = 1
+	implosion_flask.is_evolution = true
+	implosion_flask.base_damage = 35
+	implosion_flask.base_fire_rate = 0.9
+	implosion_flask.base_projectile_count = 6
+	implosion_flask.projectile_speed = 250.0
+	implosion_flask.effect_radius = 80.0
+	implosion_flask.used_stats = ["proj_speed_mult", "proj_count_bonus", "area_mult"]
+	_weapons["implosion_flask"] = implosion_flask
+
+	var chain_detonation_keg = WeaponData.new()
+	chain_detonation_keg.weapon_id = "chain_detonation_keg"
+	chain_detonation_keg.weapon_name = "Chain-Detonation Keg"
+	chain_detonation_keg.description = "Kills create unstable corpses that propagate blasts."
+	chain_detonation_keg.icon_color = Color(1.0, 0.3, 0.2)
+	chain_detonation_keg.weapon_type = WeaponData.WeaponType.MINE
+	chain_detonation_keg.max_level = 1
+	chain_detonation_keg.is_evolution = true
+	chain_detonation_keg.base_damage = 50
+	chain_detonation_keg.base_fire_rate = 0.6
+	chain_detonation_keg.effect_radius = 110.0
+	chain_detonation_keg.effect_duration = 0.6
+	chain_detonation_keg.used_stats = ["area_mult", "proj_count_bonus", "pierce_bonus", "proj_speed_mult"]
+	_weapons["chain_detonation_keg"] = chain_detonation_keg
+
+	var ghost_barrage = WeaponData.new()
+	ghost_barrage.weapon_id = "ghost_barrage"
+	ghost_barrage.weapon_name = "Ghost Barrage"
+	ghost_barrage.description = "Spectral crossfire from offset positions."
+	ghost_barrage.icon_color = Color(0.6, 0.4, 0.9)
+	ghost_barrage.weapon_type = WeaponData.WeaponType.BURST_FIRE
+	ghost_barrage.max_level = 1
+	ghost_barrage.is_evolution = true
+	ghost_barrage.base_damage = 18
+	ghost_barrage.base_fire_rate = 1.5
+	ghost_barrage.attack_range = 350.0
+	ghost_barrage.projectile_speed = 480.0
+	ghost_barrage.burst_delay = 0.08
+	ghost_barrage.used_stats = ["proj_speed_mult", "pierce_bonus"]
+	_weapons["ghost_barrage"] = ghost_barrage
+
+	var refraction_beam = WeaponData.new()
+	refraction_beam.weapon_id = "refraction_beam"
+	refraction_beam.weapon_name = "Refraction Beam"
+	refraction_beam.description = "Main beam refracts side-beams toward nearby enemies."
+	refraction_beam.icon_color = Color(0.2, 0.8, 0.7)
+	refraction_beam.weapon_type = WeaponData.WeaponType.BEAM
+	refraction_beam.max_level = 1
+	refraction_beam.is_evolution = true
+	refraction_beam.base_damage = 40
+	refraction_beam.base_fire_rate = 1.0
+	refraction_beam.base_pierce = 7
+	refraction_beam.attack_range = 550.0
+	refraction_beam.projectile_speed = 500.0
+	refraction_beam.used_stats = ["pierce_bonus", "area_mult"]
+	_weapons["refraction_beam"] = refraction_beam
+
+	var cluster_salvo = WeaponData.new()
+	cluster_salvo.weapon_id = "cluster_salvo"
+	cluster_salvo.weapon_name = "Cluster Salvo"
+	cluster_salvo.description = "Missiles burst into short-lived submunitions."
+	cluster_salvo.icon_color = Color(0.9, 0.6, 0.2)
+	cluster_salvo.weapon_type = WeaponData.WeaponType.BARRAGE
+	cluster_salvo.max_level = 1
+	cluster_salvo.is_evolution = true
+	cluster_salvo.base_damage = 25
+	cluster_salvo.base_fire_rate = 0.5
+	cluster_salvo.base_projectile_count = 3
+	cluster_salvo.projectile_speed = 220.0
+	cluster_salvo.effect_radius = 40.0
+	cluster_salvo.attack_range = 550.0
+	cluster_salvo.used_stats = ["proj_speed_mult", "area_mult", "proj_count_bonus"]
+	_weapons["cluster_salvo"] = cluster_salvo
+
+	var storm_engine = WeaponData.new()
+	storm_engine.weapon_id = "storm_engine"
+	storm_engine.weapon_name = "Storm Engine"
+	storm_engine.description = "Overloaded chain lightning with forking arcs."
+	storm_engine.icon_color = Color(1.0, 0.8, 0.1)
+	storm_engine.weapon_type = WeaponData.WeaponType.CHAIN
+	storm_engine.max_level = 1
+	storm_engine.is_evolution = true
+	storm_engine.base_damage = 30
+	storm_engine.base_fire_rate = 1.0
+	storm_engine.base_pierce = 6
+	storm_engine.attack_range = 450.0
+	storm_engine.effect_radius = 160.0
+	storm_engine.used_stats = ["pierce_bonus"]
+	_weapons["storm_engine"] = storm_engine
 
 	# ── Character Weapons (exclusive starters, not in level-up pool) ──
 

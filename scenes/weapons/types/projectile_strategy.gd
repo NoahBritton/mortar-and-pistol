@@ -39,6 +39,8 @@ func fire(data: WeaponData, level: int) -> void:
 				data.spread_angle / 2.0,
 				float(i) / (proj_count - 1)
 			)
+		var dir = direction.rotated(deg_to_rad(angle_offset))
 		var proj = PoolManager.acquire("projectile")
 		if proj:
-			proj.reset(player_pos, direction.rotated(deg_to_rad(angle_offset)), data, level)
+			proj.reset(player_pos, dir, data, level)
+		PassiveEffects.try_echo_projectile(player_pos, dir, data, level)

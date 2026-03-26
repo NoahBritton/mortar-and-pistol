@@ -181,6 +181,18 @@ func has_passive(passive_id: String) -> bool:
 			return true
 	return false
 
+func get_passive_entry(passive_id: String) -> Dictionary:
+	for entry in passive_inventory:
+		if entry.data.passive_id == passive_id:
+			return entry
+	return {}
+
+func get_passive_level(passive_id: String) -> int:
+	for entry in passive_inventory:
+		if entry.data.passive_id == passive_id:
+			return entry.level
+	return 0
+
 # ── Choice Application ──
 
 func apply_choice(choice: Dictionary) -> void:

@@ -90,6 +90,62 @@ static func _ensure_init() -> void:
 	extra_powder.is_percentage = false
 	_passives["extra_powder"] = extra_powder
 
+	# ── Phase 1 Behavioral Passives ──
+
+	var magnetism = PassiveData.new()
+	magnetism.passive_id = "magnetism"
+	magnetism.passive_name = "Magnetism"
+	magnetism.description = "Hits pull enemies toward the impact point."
+	magnetism.icon_color = Color(0.3, 0.5, 0.9)
+	magnetism.max_level = 5
+	magnetism.passive_type = PassiveData.PassiveType.BEHAVIOR
+	_passives["magnetism"] = magnetism
+
+	var volatile_kill = PassiveData.new()
+	volatile_kill.passive_id = "volatile_kill"
+	volatile_kill.passive_name = "Volatile Kill"
+	volatile_kill.description = "Killed enemies pop for AoE damage."
+	volatile_kill.icon_color = Color(1.0, 0.3, 0.2)
+	volatile_kill.max_level = 5
+	volatile_kill.passive_type = PassiveData.PassiveType.BEHAVIOR
+	_passives["volatile_kill"] = volatile_kill
+
+	var phantom_echo = PassiveData.new()
+	phantom_echo.passive_id = "phantom_echo"
+	phantom_echo.passive_name = "Phantom Echo"
+	phantom_echo.description = "Projectiles and bursts fire a delayed echo."
+	phantom_echo.icon_color = Color(0.6, 0.4, 0.9)
+	phantom_echo.max_level = 5
+	phantom_echo.passive_type = PassiveData.PassiveType.BEHAVIOR
+	_passives["phantom_echo"] = phantom_echo
+
+	var ricochet = PassiveData.new()
+	ricochet.passive_id = "ricochet"
+	ricochet.passive_name = "Ricochet"
+	ricochet.description = "Projectile hits bounce to nearby enemies."
+	ricochet.icon_color = Color(0.2, 0.8, 0.7)
+	ricochet.max_level = 5
+	ricochet.passive_type = PassiveData.PassiveType.BEHAVIOR
+	_passives["ricochet"] = ricochet
+
+	var shrapnel = PassiveData.new()
+	shrapnel.passive_id = "shrapnel"
+	shrapnel.passive_name = "Shrapnel"
+	shrapnel.description = "Projectile impacts split into fragments."
+	shrapnel.icon_color = Color(0.9, 0.6, 0.2)
+	shrapnel.max_level = 5
+	shrapnel.passive_type = PassiveData.PassiveType.BEHAVIOR
+	_passives["shrapnel"] = shrapnel
+
+	var overclock = PassiveData.new()
+	overclock.passive_id = "overclock"
+	overclock.passive_name = "Overclock"
+	overclock.description = "Consecutive hits build heat stacks, boosting fire rate."
+	overclock.icon_color = Color(1.0, 0.8, 0.1)
+	overclock.max_level = 5
+	overclock.passive_type = PassiveData.PassiveType.BEHAVIOR
+	_passives["overclock"] = overclock
+
 static func get_passive(passive_id: String) -> PassiveData:
 	_ensure_init()
 	return _passives.get(passive_id)
